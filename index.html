@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./libs/css/estilos.css">
+    <link rel="icon" href="./libs/img/favicon-hotelplus.png" type="image/png" sizes="16x16">
+    <script src="./libs/js/main.js"></script>
+    <script src="./libs/js/paginate.js"></script>
+
+    <title>Hotel Plus</title>
+</head>
+<body id="body" class="">
+    <div class="container">
+		<aside>
+            
+            <div id="aside-top" class="top ">
+                <div class="logo">
+                    <span ><img src="./libs/img/logoapp2.png" id="logo"></span>
+                    <h1><span class="primary">HOTEL<span><span class="danger">PLUS</span></h1>
+                </div>
+                <div class="close" id="close-btn">
+                    <span class="icon-close"></span>
+                </div>
+            </div>
+
+<!--======================= MENU LATERAL ====================== -->
+            <div id="sidebar" class="sidebar ">
+                <a href="#" id="a-dashboard" onclick="toggleElement(id)">
+                    <span class="icon-monitor-dashboard"></span>
+                    <h3>Informe General</h3>
+                </a>
+                <a href="#" id="a-ingreso" onclick="toggleElement(id)">
+                    <span class="icon-plus"></span>
+                    <h3>Nuevo Ingreso</h3>
+                </a>
+                <a href="#" id="a-tabla-i" onclick="toggleElement(id)">
+                    <span class="icon-cash-check"></span>
+                    <h3>Tabla de Ingresos</h3>
+                </a>
+            </a>                    
+            <a href="#" id="a-gasto" onclick="toggleElement(id)">
+                <span class="icon-plus"></span>
+                <h3>Nuevo Gasto</h3>
+            </a>
+                <a href="#" id="a-tabla-g" onclick="toggleElement(id)">
+                    <span class="icon-cash-remove"></span>
+                    <h3>Tabla de Gastos</h3>
+                </a>
+                <a href="#" id="a-clientes" onclick="toggleElement(id)">
+                    <span class="icon-chart-timeline-variant-shimmer"></span>
+                    <h3>Clientes</h3>
+                </a>
+                <a href="#" id="a-proveedores" onclick="toggleElement(id)">
+                    <span class="icon-cart"></span>
+                    <h3>Proveedores</h3>
+                </a>
+                <a href="#" id="a-configuraciones" onclick="toggleElement(id)">
+                    <span class="icon-cog"></span>
+                    <h3>Configuraciones</h3>
+                </a>
+                
+                <a href="#" id="a-usuarios" onclick="toggleElement(id)">
+                    <span class="icon-account"></span>
+                    <h3>Usuarios</h3>
+                </a>
+                
+                <a href="#" id="cerrar-sesion">
+                    <span class="icon-logout danger"></span>
+                    <h3><div class="danger" style="font-size: 1rem;">Cerrar Sesión</div></h3>
+                </a>
+            </div>
+            
+        </aside>
+
+        <!--    -----FIN DE ASIDE--------    -->
+	<main>
+        <div class="a-dashboard" id="a-dashboardid"></div>
+        <div class="a-gasto" id="a-gastoid"></div>
+        <div class="a-tabla-g" id="a-tabla-gid"></div>
+        <div class="a-clientes"  id="a-clientesid"></div>
+        <div class="a-proveedores" id="a-proveedoresid"></div>
+        <div class="a-configuraciones" id="a-configuracionesid"></div>
+        <div class="a-usuarios" id="a-usuariosid"></div>
+
+<!--======================= FORM NUEVO INGRESO====================== -->
+        <div class="recuadro" id="modal-form">
+            <div class="modal-dialog a-ingreso" id="a-ingresoid">
+                <header class="modal-header form-header">
+                  <h4 class="header">Nuevo Ingreso</h4>
+                </header>
+                <!-- <section class="modal-content"> -->
+    <form name="form-ingreso1" id="form-ingreso1" class="form-ingreso">
+			<div class="caja-select">
+				<label class="label2" for="fecha1">Fecha</label>  
+				<input type="date" name="fecha1" id="fecha-ingreso1" class="input">
+			</div>
+			<div class="caja-select">
+				<label class="label2" for="hora1">Hora</label>  
+				<!-- <div class="separador"></div> -->
+				<input type="time" name="hora1" id="hora-ingreso1" class="input">
+			</div>
+				<div class="caja-select">
+				<label class="label2" for="lista-habitaciones1">Habitación</label>
+				<select name="lista-habitaciones1" id="lista-habitaciones1" class="input">
+					<option value=""></option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+				</select>
+				</div>
+
+				<div class="caja-select">
+				<label class="label2" for="lista-servicios1">Servicio</label>
+				<select name="lista-servicios1" id="lista-servicios1" class="input">
+					<option value=""></option>
+					<option value="Hospedaje">Hospedaje</option>
+					<option value="Restaurante">Restaurante</option>
+					<option value="Minibar">Minibar</option>
+					<option value="Lavandería">Lavandería</option>
+				</select>
+				</div>
+
+				<div class="caja-select">
+					<label class="label2" for="detalle-ingreso1">Detalle</label>
+					<input type="text" name="detalle-ingreso1" id="detalle-ingreso1" placeholder="Cliente / Detalle" autocomplete="off" class="input">
+				</div>
+				<div class="caja-select">
+					<label class="label2" for="cantidad-ingreso1">Cantidad</label>
+					<input type="number" name="cantidad-ingreso1" id="cantidad-ingreso1" min="1" max="100" placeholder="Cantidad" autocomplete="off" oninput="formatoMoneda(1)" class="input">
+				</div>
+				<div class="caja-select">
+					<label class="label2" for="precio-ingreso1">Precio</label>
+					<input type="number" name="precio-ingreso1" id="precio-ingreso1" placeholder="Precio" autocomplete="off" oninput="formatoMoneda(1)" class="input">
+				</div>
+				<div class="caja-select">
+				<label class="label2" for="tipo-pago1">Pago</label>
+				<select name="tipo-pago1" id="tipo-pago1" class="input">
+					<option value=""></option>
+					<option value="Efectivo">Efectivo</option>
+					<option value="Factura">Factura</option>
+					<option value="Crédito">Crédito</option>
+					<option value="Tarjeta">Tarjeta</option>
+					<option value="Transferencia">Transferencia</option>
+				</select>
+				</div>
+
+				<div class="caja-select">
+				<label class="label2" for="lista-encargados1">Turno</label>
+				<select name="lista-encargados1" id="lista-encargados1" class="input">
+					<option value=""></option>
+					<option value="Día">Día</option>
+					<option value="Noche">Noche</option>
+				</select>
+				</div>
+
+				<div class="caja-select">
+					<label class="label2" for="observaciones1">Obser...</label>
+					<input type="text" name="observaciones1" id="observaciones1" placeholder="Observaciones" autocomplete="off" class="input">
+				</div>
+				<div class="caja-subtotal">
+					<label for="txt-subtotal1" class="lsubt" id="subtotal1">Subtotal</label>
+					<input type="text" class="tsubt" id="txt-subtotal1" name="txt-subtotal1" disabled="true" readonly value="$0">
+				</div>
+
+        <button id="boton-ingreso" class="btn-form" onclick="nuevoIngreso(1)">Guardar</button>
+    </form>
+<!-- </section> -->
+</div>
+</div>
+
+<!--======================= TABLA INGRESOS====================== -->
+
+    <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
+        <div class="info-tabla">
+            <input type="text" id="searchBox" class="input" placeholder="Buscar">
+            <label for="" class="total-registros">Total Registros:</label>
+            <label for="" id="total-registros2" class="total-registros2"></label>
+
+        </div>
+        
+        <div class="borde-tabla" id="borde-tabla">
+        </div>
+    </div>
+    <!--======================= FORM EDITAR INGRESO====================== -->
+
+        <div class="modal noVisible" id="modal1">
+            <div class="modal-dialog noAnimacion" id="modal-dialog">
+                <header class="modal-header">
+                  <h4 class="h4">Editar Ingreso</h4>
+                  <button onclick="cerrarModal()" class="close-modal" id="btnClose">
+                    <span class="icon-close"></span>
+                  </button>
+                  <!-- <div class="espacio"></div> -->
+                </header>
+
+                <!-- <section class="modal-content"> -->
+                    <form name="form-editar" id="form-editar" class="form-ingreso">
+                      <div class="caja-select">
+                        <label class="label2" for="fecha2">Fecha</label>  
+												<input type="date" name="fecha2" id="fecha-ingreso2" class="input">
+											</div>
+											<div class="caja-select">
+                        <label class="label2" for="hora2">Hora</label>  
+												<!-- <div class="separador"></div> -->
+                        <input type="time" name="hora2" id="hora-ingreso2" class="input">
+											</div>
+                        <div class="caja-select">
+                        <label class="label2" for="lista-habitaciones2">Habitación</label>
+                        <select name="lista-habitaciones2" id="lista-habitaciones2" class="input">
+													<option value=""></option>
+													<option value="1">1</option>
+													<option value="2">2</option>
+													<option value="3">3</option>
+													<option value="4">4</option>
+                        </select>
+                        </div>
+
+                        <div class="caja-select">
+                        <label class="label2" for="lista-servicios2">Servicio</label>
+                        <select name="lista-servicios2" id="lista-servicios2" class="input">
+													<option value=""></option>
+													<option value="Hospedaje">Hospedaje</option>
+													<option value="Restaurante">Restaurante</option>
+													<option value="Minibar">Minibar</option>
+													<option value="Lavandería">Lavandería</option>
+                        </select>
+                        </div>
+                
+                        <div class="caja-select">
+													<label class="label2" for="detalle-ingreso2">Detalle</label>
+													<input type="text" name="detalle-ingreso2" id="detalle-ingreso2" placeholder="Cliente / Detalle" autocomplete="off" class="input">
+                        </div>
+												<div class="caja-select">
+													<label class="label2" for="cantidad-ingreso2">Cantidad</label>
+													<input type="number" name="cantidad-ingreso2" id="cantidad-ingreso2" min="1" max="100" placeholder="Cantidad" autocomplete="off" oninput="formatoMoneda(2)" class="input">
+                        </div>
+												<div class="caja-select">
+													<label class="label2" for="precio-ingreso2">Precio</label>
+                        	<input type="number" name="precio-ingreso2" id="precio-ingreso2" placeholder="Precio" autocomplete="off" oninput="formatoMoneda(2)" class="input">
+												</div>
+                        <div class="caja-select">
+                        <label class="label2" for="tipo-pago2">Pago</label>
+                        <select name="tipo-pago2" id="tipo-pago2" class="input">
+													<option value=""></option>
+													<option value="Efectivo">Efectivo</option>
+													<option value="Factura">Factura</option>
+													<option value="Crédito">Crédito</option>
+													<option value="Tarjeta">Tarjeta</option>
+													<option value="Transferencia">Transferencia</option>
+                        </select>
+                        </div>
+                
+                        <div class="caja-select">
+                        <label class="label2" for="lista-encargados2">Turno</label>
+                        <select name="lista-encargados2" id="lista-encargados2" class="input">
+													<option value=""></option>
+													<option value="Día">Día</option>
+													<option value="Noche">Noche</option>
+                        </select>
+                        </div>
+
+												<div class="caja-select">
+													<label class="label2" for="observaciones2">Obser...</label>
+                        	<input type="text" name="observaciones2" id="observaciones2" placeholder="Observaciones" autocomplete="off" class="input">
+												</div>
+												<div class="caja-subtotal">
+													<label for="txt-subtotal2" class="lsubt" id="subtotal2">Subtotal</label>
+													<input type="text" class="tsubt" id="txt-subtotal2" name="txt-subtotal2" disabled="true" readonly value="$0">
+                        </div>
+                
+                        <div id="div-btn">
+
+                        </div>
+                    </form>
+                <!-- </section> -->
+                </div>
+            </div>
+           
+        </body>
+        </main>
+<!--======================= FIN DE MAIN ====================== -->
+
+<!--======================= INICIO DE RIGHT ====================== -->
+<div id="right" class="right">
+    <div class="top">
+        <button id="menu-btn">
+            <span class="icon-menu"></span>
+        </button>
+        <div class="theme-toggler" onclick="toggleDark()">
+            <span id="sun" class="icon-brightness-7 active"></span>
+            <span id="moon" class="icon-brightness-2"></span>
+        </div>
+        <div class="profile">
+            <div class="info">
+                <p>Hola, <b>Francisco</b></p>
+                <small class="text-muted">Admin</small>
+            </div>
+            <div class="profile-photo">
+                <img src="./libs/img/perfil1.jpg" alt="">
+            </div>
+        </div>
+    </div>
+<!--======================= FIN DE TOP ====================== -->
+
+<!--======================= INICIO DE DATOS ====================== -->
+<div class="analytics">
+    <h2>Ingresos</h2>
+    <div class="item online">
+        <div class="icon">
+            <span class="icon-finance"></span>
+        </div>
+        <div class="right">
+            <div class="info">
+                <h3>Hoy</h3>
+                <small class="text-muted">Sobre el total</small>
+            </div>
+            <div class="info2">
+                <h3>$523.000</h3>
+                <h3 class="success">2%</h3>
+            </div>
+        </div>
+    </div>
+    <div class="item offline">
+        <div class="icon">
+            <span class="icon-chart-timeline-variant-shimmer"></span>
+        </div>
+        <div class="right">
+            <div class="info">
+                <h3>7 Días</h3>
+                <small class="text-muted">Sobre el total</small>
+            </div>
+            <div class="info2">
+                <h3>$5.235.000</h3>
+                <h3 class="success">7%</h3>
+            </div>
+        </div>
+    </div>
+    <div class="item online">
+        <div class="icon">
+            <span class="icon-chart-areaspline"></span>
+        </div>
+        <div class="right">
+            <div class="info">
+                <h3>30 Días</h3>
+                <small class="text-muted">Sobre el total</small>
+            </div>
+            <div class="info2">
+                <h3>$23.515.000</h3>
+                <h3 class="success">20%</h3>
+            </div>
+        </div>
+    </div>
+    <div class="item add-ingreso">
+        <div>
+            <span class="icon-plus"></span>
+            <h3>Nuevo Ingreso</h3>
+        </div>
+    </div>
+</div>
+
+</div>
+    </div>
+</body>
+</html>
