@@ -168,7 +168,6 @@ function nuevoIngreso(fin, id1="") {
 }
 
 function mostrar() {
-    var contIngresos = 0;
     // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
@@ -200,6 +199,7 @@ function mostrar() {
 }
 
 function mostrarIngresos(evento) {
+    var contIngresos = 0;
     var puntero = evento.target.result;
     let options = {
         numberPerPage:16,
