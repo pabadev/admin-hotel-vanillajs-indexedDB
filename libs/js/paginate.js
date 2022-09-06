@@ -111,7 +111,7 @@
         }
 
         var setFunctionInFilterBox = function(){
-            filterSettings.filterBox.setAttribute('onkeyup','paginate.filter()')
+            // filterSettings.filterBox.setAttribute('onkeyup','paginate.filter()')
         }
 
         var setGoBar = function(value){

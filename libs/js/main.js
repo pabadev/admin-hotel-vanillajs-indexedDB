@@ -30,6 +30,31 @@ function mostrarError(evento) {
 
 function comenzar(evento) {
     bd = evento.target.result;
+    var transaccion = bd.transaction(["darkMode"]);
+    var almacen = transaccion.objectStore("darkMode");
+    var puntero = almacen.openCursor(null, "prev");
+    puntero.addEventListener("success", loadTheme);      
+    }
+
+function loadTheme(evento) {
+    var puntero = evento.target.result;
+    if (puntero) {
+        let modo = puntero.value.theme;
+        let modoOn = (modo == true) ? "dark-theme-variables" : null;
+        document.body.classList.add(`${modoOn}`);
+        if (document.body.classList.contains("dark-theme-variables")){
+            document.getElementById("sun").classList.remove("active");
+            document.getElementById("moon").classList.add("active");
+        }
+        else{
+            document.getElementById("sun").classList.add("active");
+            document.getElementById("moon").classList.remove("active");
+        }
+    }
+    else{
+        return;
+    }
+
      mostrar();   
 }
 
@@ -48,6 +73,10 @@ function crearTablas(evento) {
     tabIngresos.createIndex("porSubTotal", "subTotal", {unique: false});
     tabIngresos.createIndex("porSubTotal2", "subTotal", {unique: false});
     tabIngresos.createIndex("porObservaciones", "observaciones", {unique: false});
+
+    
+    var darkMode = baseDeDatos.createObjectStore("darkMode", {keyPath: "id", autoIncrement: false});
+    darkMode.createIndex("theme", "theme", {unique: true});
 }
 
 //================= Funciones utilitarias =================
@@ -117,13 +146,12 @@ function nuevoIngreso(fin, id1="") {
     let subTotal = cantidad*precioUnitario;
     let subTotal2 = document.getElementById(`txt-subtotal${fin}`).value;
     let observaciones = document.getElementById(`observaciones${fin}`).value.toLowerCase();
+    
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
-      if (id == "") {
+    if (id == "") {
         almacen.put({fecha, habitacion, detalle, servicio, cantidad, 
-        precioUnitario, tipoPago, encargado, subTotal, subTotal2, observaciones});
-        
-      }else{
+        precioUnitario, tipoPago, encargado, subTotal, subTotal2, observaciones});}else{
         almacen.put({id, fecha, hora, habitacion, detalle, servicio, cantidad, 
         precioUnitario, tipoPago, encargado, subTotal, subTotal2, observaciones});
         }
@@ -138,7 +166,7 @@ function nuevoIngreso(fin, id1="") {
 }
 
 function mostrar() {
-    document.getElementById("form-ingreso1").reset();
+    // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
     <thead>
@@ -238,7 +266,7 @@ function showModal(id){
     let pago =  document.querySelector(`#ti${id}`).innerHTML;
     let encargado =  document.querySelector(`#en${id}`).innerHTML;
     let subtotal =  document.querySelector(`#su${id}`).innerHTML;
-    let observaciones =  document.querySelector(`#ob${id}`).innerHTML;
+    // let observaciones =  document.querySelector(`#ob${id}`).innerHTML;
 
     
 
@@ -257,7 +285,7 @@ function showModal(id){
     document.getElementById("tipo-pago2").value = pago;
     document.getElementById("lista-encargados2").value = encargado;
     document.getElementById("txt-subtotal2").value = subtotal;
-    document.getElementById("observaciones2").value = observaciones;
+    // document.getElementById("observaciones2").value = observaciones;
 
     document.addEventListener("keyup", e => {if (e.key == "Escape"){ cerrarModal();}});
 }
@@ -302,14 +330,62 @@ function toggleElement(idElement){ //===== on/off la clase active elementos del 
             document.getElementById(`${arrMenu[i]}id`).style.display = "none";
         }
     }
+    if (document.querySelector(".a-tabla-i").style.display == "grid"){
+        document.getElementById("searchBox").addEventListener("keyup", e => {if (e.key == "Enter"){ filtrar("buscar-i");}});
+    }
 }
 
-function toggleDark(){
+function toggleDark(theme){
+
     document.getElementById("sun").classList.toggle("active");
     document.getElementById("moon").classList.toggle("active");
 
-    let arrDark = ["body", "aside-top", "sidebar", "right", "tab-ingresos", "a-ingresoid"];
-    for(let i=0; i<arrDark.length; i++){
-        document.getElementById(arrDark[i]).classList.toggle("dark");
+    document.body.classList.toggle("dark-theme-variables");
+    console.log(document.body.classList);
+    console.log(document.getElementById("sun").classList)
+    console.log(document.getElementById("moon").classList)
+
+    var transaccion = bd.transaction(["darkMode"], "readwrite");
+    var almacen = transaccion.objectStore("darkMode");
+    let id = 1;
+
+    if (document.getElementById("moon").classList.contains("active")){
+        let theme = true;
+        almacen.put({id, theme});
+    }
+    else{
+        let theme = false;
+        almacen.put({id, theme});
+    }
+    
+}
+
+function filtrar(id){
+    if(id=="buscar-i"){
+        if(document.getElementById("searchBox").value.trim() !== ""){
+            paginate.filter();
+            document.getElementById("buscar-i").style.display = "none";
+            document.getElementById("cerrar-buscar-i").style.display = "flex";
+            document.getElementById("searchBox").addEventListener("keyup", e => {
+                if (e.key == "Backspace" || e.key == "Delete"){
+                    filtrarOff();
+                }
+                else{ return; }
+            });
+        }else{return;}
+    }else{
+        document.getElementById("searchBox").value = "";
+        paginate.filter();
+        document.getElementById("cerrar-buscar-i").style.display = "none";
+        document.getElementById("buscar-i").style.display = "flex";
+    }
+}
+
+function filtrarOff(){
+    if(document.getElementById("searchBox").value.trim() == ""){
+        paginate.filter();
+        document.getElementById("cerrar-buscar-i").style.display = "none";
+        document.getElementById("buscar-i").style.display = "flex";
+        document.getElementById("searchBox").value = "";
     }
 }

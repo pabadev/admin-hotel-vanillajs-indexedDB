@@ -156,10 +156,10 @@
 				</select>
 				</div>
 
-				<div class="caja-select">
+				<!-- <div class="caja-select">
 					<label class="label2" for="observaciones1">Obser...</label>
 					<input type="text" name="observaciones1" id="observaciones1" placeholder="Observaciones" autocomplete="off" class="input">
-				</div>
+				</div> -->
 				<div class="caja-subtotal">
 					<label for="txt-subtotal1" class="lsubt" id="subtotal1">Subtotal</label>
 					<input type="text" class="tsubt" id="txt-subtotal1" name="txt-subtotal1" disabled="true" readonly value="$0">
@@ -175,7 +175,11 @@
 
     <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
         <div class="info-tabla">
-            <input type="text" id="searchBox" class="input" placeholder="Buscar">
+            <div class="search" id="search">
+                <input type="text" id="searchBox" class="" placeholder="Buscar en la tabla" autocomplete="off" onkeyup="">
+                <span id="buscar-i" class="icon-search" onclick="filtrar(id)"></span>
+                <span id="cerrar-buscar-i" class="icon-close" onclick="filtrar(id)" style="display: none;"></span>
+            </div>
             <label for="" class="total-registros">Total Registros:</label>
             <label for="" id="total-registros2" class="total-registros2"></label>
 
@@ -262,13 +266,13 @@
                         </select>
                         </div>
 
-												<div class="caja-select">
-													<label class="label2" for="observaciones2">Obser...</label>
+                        <!-- <div class="caja-select">
+                            <label class="label2" for="observaciones2">Obser...</label>
                         	<input type="text" name="observaciones2" id="observaciones2" placeholder="Observaciones" autocomplete="off" class="input">
-												</div>
-												<div class="caja-subtotal">
-													<label for="txt-subtotal2" class="lsubt" id="subtotal2">Subtotal</label>
-													<input type="text" class="tsubt" id="txt-subtotal2" name="txt-subtotal2" disabled="true" readonly value="$0">
+						</div> -->
+                        <div class="caja-subtotal">
+                            <label for="txt-subtotal2" class="lsubt" id="subtotal2">Subtotal</label>
+                            <input type="text" class="tsubt" id="txt-subtotal2" name="txt-subtotal2" disabled="true" readonly value="$0">
                         </div>
                 
                         <div id="div-btn">
@@ -295,7 +299,7 @@
         </div>
         <div class="profile">
             <div class="info">
-                <p>Hola, <b>Francisco</b></p>
+                <p><b>Francisco</b></p>
                 <small class="text-muted">Admin</small>
             </div>
             <div class="profile-photo">
@@ -353,7 +357,7 @@
             </div>
         </div>
     </div>
-    <div class="item add-ingreso">
+    <div class="item add-ingreso" onclick="toggleElement('a-ingreso')">
         <div>
             <span class="icon-plus"></span>
             <h3>Nuevo Ingreso</h3>
