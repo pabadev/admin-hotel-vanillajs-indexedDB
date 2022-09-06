@@ -1,4 +1,4 @@
-var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0;
+var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar;
 var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g", 
                 "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"];
     
@@ -168,6 +168,7 @@ function nuevoIngreso(fin, id1="") {
 }
 
 function mostrar() {
+    var contIngresos = 0;
     // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
