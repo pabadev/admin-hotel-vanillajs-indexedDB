@@ -457,25 +457,26 @@ main{
     text-align: center;
     font-size: 0.95rem;
     font-weight: normal;
-    /* background-color: var(--color-white); */
+    background-color: var(--color-white);
     color: var(--primaryColor);
     text-transform: capitalize;
   }
   
   form *:focus{
-    background-color: var(--color-info-light);
+    background-color: var(--color-light);
   }
   
   .caja-subtotal{
     display: flex;
     width: 200px;
-    background-color: #e6e0e0;
+    background-color: var(--color-white);
     margin-left: auto;
     margin-right: auto;
+    justify-content: stretch;
   }
   
   .lsubt{
-    width: 70px;
+    width: 100px;
     margin-right: 10px;
     padding-left: 10px;
     float: left;
@@ -483,17 +484,17 @@ main{
     font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 1px;
-    background-color: #e6e0e0;
+    background-color: var(--color-light);
   }
   
   .tsubt{
-    width: 100%;
+    width: 120px;
     justify-content: space-between;
     float: right;
     font-weight: 600;
     font-size: 0.9rem;
     letter-spacing: 1px;
-    background-color: #e6e0e0;
+    background-color: var(--color-light);
     color: var(--color-success);
   }
   
@@ -611,14 +612,14 @@ main{
     display: flex;
     justify-content: space-between;
     gap: 0px;
-    background-color: white;
+    background-color: var(--color-white);
     width: 250px;
   }
   .label2{
     text-align: left;
     padding: 0;
     padding-left: 5px;
-    background-color: var(--lightgray);
+    background-color: var(--color-light);
     color: var(--color-success);
     font-weight: 550;
     width: 90px;
