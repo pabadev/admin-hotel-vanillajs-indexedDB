@@ -259,7 +259,7 @@ function showModal(id){
     document.getElementById("div-btn").innerHTML = modalHTML;   
 
     let fecha = document.querySelector(`#fe${id}`).innerHTML;
-    // let hora =  document.querySelector(`#ho${id}`).innerHTML;
+    let hora =  document.querySelector(`#ho${id}`).innerHTML;
     let habitacion =  document.querySelector(`#ha${id}`).innerHTML;
     let servicio =  document.querySelector(`#se${id}`).innerHTML;
     let detalle =  document.querySelector(`#de${id}`).innerHTML;
