@@ -1,4 +1,4 @@
-var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar;
+var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0;
 var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g", 
                 "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"];
     
@@ -168,6 +168,7 @@ function nuevoIngreso(fin, id1="") {
 }
 
 function mostrar() {
+    contIngresos = 0;
     // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
@@ -199,7 +200,6 @@ function mostrar() {
 }
 
 function mostrarIngresos(evento) {
-    var contIngresos = 0;
     var puntero = evento.target.result;
     let options = {
         numberPerPage:16,
@@ -241,7 +241,7 @@ function mostrarIngresos(evento) {
             document.querySelector("table#tab-ingresos tbody").innerHTML = cuerpoTablaHTML;
             paginate.init("#tab-ingresos", options, filterOptions); 
             document.getElementById("total-registros2").innerText = contIngresos;
-            contIngresos = 0;
+            // contIngresos = 0;
             
         }
 }
