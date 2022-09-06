@@ -145,15 +145,15 @@ function nuevoIngreso(fin, id1="") {
     let encargado = document.getElementById(`lista-encargados${fin}`).value;
     let subTotal = cantidad*precioUnitario;
     let subTotal2 = document.getElementById(`txt-subtotal${fin}`).value;
-    let observaciones = document.getElementById(`observaciones${fin}`).value.toLowerCase();
+    // let observaciones = document.getElementById(`observaciones${fin}`).value.toLowerCase();
     
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
     if (id == "") {
         almacen.put({fecha, habitacion, detalle, servicio, cantidad, 
-        precioUnitario, tipoPago, encargado, subTotal, subTotal2, observaciones});}else{
+        precioUnitario, tipoPago, encargado, subTotal, subTotal2});}else{
         almacen.put({id, fecha, hora, habitacion, detalle, servicio, cantidad, 
-        precioUnitario, tipoPago, encargado, subTotal, subTotal2, observaciones});
+        precioUnitario, tipoPago, encargado, subTotal, subTotal2});
         }
     // }
     // else{
