@@ -33,7 +33,9 @@ function comenzar(evento) {
     var transaccion = bd.transaction(["darkMode"]);
     var almacen = transaccion.objectStore("darkMode");
     var puntero = almacen.openCursor(null, "prev");
-    puntero.addEventListener("success", loadTheme);      
+    puntero.addEventListener("success", loadTheme); 
+    
+    mostrar();
     }
 
 function loadTheme(evento) {
