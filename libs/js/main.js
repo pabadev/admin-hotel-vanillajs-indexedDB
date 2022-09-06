@@ -7,7 +7,7 @@ var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g",
 window.addEventListener("load", iniciar);
 
 function iniciar() {
-    solicitud = indexedDB.open("hotelDB");
+    solicitud = indexedDB.open("hotelDB", 2);
     solicitud.addEventListener("error", mostrarError);
     solicitud.addEventListener("success", comenzar);
     solicitud.addEventListener("upgradeneeded", crearTablas);   
