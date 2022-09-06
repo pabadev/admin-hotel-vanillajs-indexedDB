@@ -152,7 +152,7 @@ function nuevoIngreso(fin, id1="") {
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
     if (id == "") {
-        almacen.put({fecha, habitacion, detalle, servicio, cantidad, 
+        almacen.put({fecha, hora, habitacion, detalle, servicio, cantidad, 
         precioUnitario, tipoPago, encargado, subTotal, subTotal2});}else{
         almacen.put({id, fecha, hora, habitacion, detalle, servicio, cantidad, 
         precioUnitario, tipoPago, encargado, subTotal, subTotal2});
@@ -278,7 +278,7 @@ function showModal(id){
     document.getElementById("modal-dialog").classList.remove("noAnimation");
 
     document.getElementById("fecha-ingreso2").value = fecha;
-    // document.getElementById("hora-ingreso2").value = hora;
+    document.getElementById("hora-ingreso2").value = hora;
     document.getElementById("lista-habitaciones2").value = habitacion;
     document.getElementById("lista-servicios2").value = servicio;
     document.getElementById("detalle-ingreso2").value = detalle;
