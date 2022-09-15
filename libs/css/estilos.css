@@ -138,7 +138,8 @@
     --color-info-light: #dce1eb;
     --color-dark: #363949;
     --color-dark2: #5a5f74;
-    --color-light: rgba(132, 139, 200, 0.18);
+    --color-light: rgba(132, 139, 200, 0.15);
+    /* --color-light: rgba(132, 139, 200, 0.18); */
     --color-primary-variant: #818bc9;
     --color-dark-variant: #677483;
     --color-background: #f6f6f9;
@@ -166,8 +167,8 @@
 }
 
 .dark-theme-variables{
-  --color-background: #181a1e;
-  --color-white: #202528;
+  --color-background: #202227;
+  --color-white: #2c3135;
   --color-dark: #f7f7f7;
   --color-dark-variant: #a3bdcc;
   --color-light: rgba(0, 0, 0, 0.4);
@@ -196,7 +197,7 @@ body{
     font-family: sans-serif;
     font-size: 0.88rem;
     background: var(--color-background);
-    user-select: text;
+    user-select: none;
     overflow-x: hidden;
     color: var(--color-dark);
     transition: all 300ms ease;
@@ -468,16 +469,14 @@ main{
   
   .caja-subtotal{
     display: flex;
-    width: 200px;
+    width: 210px;
     background-color: var(--color-white);
     margin-left: auto;
-    margin-right: auto;
-    justify-content: stretch;
+    margin-right: auto;  
   }
   
   .lsubt{
-    width: 100px;
-    margin-right: 10px;
+    width: 85px;
     padding-left: 10px;
     float: left;
     color: var(--color-success);
@@ -485,31 +484,47 @@ main{
     font-weight: 600;
     letter-spacing: 1px;
     background-color: var(--color-light);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
   
   .tsubt{
-    width: 120px;
-    justify-content: space-between;
-    float: right;
+    width: 125px;
     font-weight: 600;
     font-size: 0.9rem;
     letter-spacing: 1px;
     background-color: var(--color-light);
     color: var(--color-success);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
+
+.fondo-blanco{
+  background-color: var(--color-white);
+  width: 80px;
+  margin-left: auto;
+  margin-right: auto;
+}
   
   .btn-form{
     width: 80px;
     cursor: pointer;
     justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: var(--color-info-light);
+    background-color: var(--color-light);
     color: var(--primaryColor);
     font-weight: bold;
     border: 1px solid var(--color-dark)
   }
-  
+  .btn-form:focus{
+    background-color: var(--color-light);
+  }
+  .btn-form:hover{
+    background-color: var(--color-success);
+    color: var(--color-dark);
+  }
+  /* body.dark-theme-variables .btn-form{
+
+  } */
   
   /* estilo para modal de Editar Ingreso*/
   
@@ -656,10 +671,10 @@ main{
   display: flex;
   /* gap: 1rem; */
   align-items: center;
+  justify-content: space-between;
 }
 .total-registros{
   display: flex;
-  margin-left: 1rem;
   height: 27px;
   background-color: var(--color-light);
   align-items: center;
@@ -668,7 +683,9 @@ main{
   border-right: none;
   border-bottom-left-radius: var(--card-border-radius);
   border-top-left-radius: var(--card-border-radius);
-  /* color: var(--color-dark); */
+  letter-spacing: 0.5px;
+  color: var(--primaryColor);
+  font-weight: bold;
 }
 .total-registros2{
   display: flex;
@@ -680,6 +697,9 @@ main{
   border-left: none;
   border-bottom-right-radius: var(--card-border-radius);
   border-top-right-radius: var(--card-border-radius);
+  color: var(--primaryColor);
+  font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
 #search{
@@ -687,7 +707,7 @@ main{
   align-items: center;
   justify-content: space-between;
   height: 27px;
-  width: 250px;
+  width: 200px;
   border: 1px solid var(--primaryColor);
   border-radius: var(--card-border-radius);
   padding: 0px 10px 0px 10px;
@@ -704,16 +724,13 @@ main{
 }
 #searchBox{
   height: 27px;
-  width: 205px;
+  width: 155px;
   border: none;
   padding-left: 10px;
-  box-shadow: var(--box-shadow);
-  transition: all 300ms ease;
   background-color: transparent;
-  color: var(--color-dark);
+  color: var(--primaryColor);
   align-items: center;
   justify-content: end;
-  /* text-align: center; */
 }
 #searchBox:hover{
   box-shadow: none;
@@ -903,13 +920,22 @@ div.paginate .mover.active{
 }
 
 div.paginate input[type='number']#paginate_page_to_go{
-    max-width: 3rem;
-    text-align: center;
-    border-radius: 4px;
-    border: 1px solid var(--primaryColor);
-    padding: 3px;
-    color: var(--primaryColor);
-    background-color: var(--color-white);
+  margin-left: 20px;
+  max-width: 3rem;
+  text-align: center;
+  border-radius: 4px;
+  border: 1px solid var(--primaryColor);
+  padding: 3px;
+  color: var(--primaryColor);
+  background-color: var(--color-white);
+}
+
+div.paginate input[type='button'].ir{
+  margin-left: 5px;
+  background-color: var(--primaryColor);
+  color: var(--white);
+  font-weight: bold;
+  border-radius: 6px;
 }
 
 /*====== RIGHT ======*/
@@ -970,6 +996,7 @@ div.paginate input[type='number']#paginate_page_to_go{
   border-radius: var(--card-border-radius);
   box-shadow: var(--box-shadow);
   transition: all 300ms ease;
+  border: 1px solid var(--primaryColor);
 }
 
 /*====== Analytics ======*/
@@ -991,6 +1018,7 @@ div.paginate input[type='number']#paginate_page_to_go{
   box-shadow: var(--box-shadow);
   transition: all 300ms ease;
   height: 6.2rem;
+  border: 1px solid var(--primaryColor);
 }
 .right .analytics .item:hover{
   box-shadow: none;

@@ -1,4 +1,4 @@
-var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0;
+var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0, totalIngresos = 0;
 var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g", 
                 "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"];
     
@@ -9,13 +9,13 @@ window.addEventListener("load", iniciar);
 function iniciar() {
     solicitud = indexedDB.open("hotelDB");
     solicitud.addEventListener("error", mostrarError);
-    solicitud.addEventListener("success", comenzar);
-    solicitud.addEventListener("upgradeneeded", crearTablas);   
+    solicitud.addEventListener("upgradeneeded", crearTablas); 
+    solicitud.addEventListener("success", comenzar);  
 
-    var formIngreso = document.getElementById("form-ingreso1"); 
+    const formIngreso = document.getElementById("form-ingreso1"); 
     formIngreso.addEventListener("submit", (e)=>{e.preventDefault();});
 
-    salir = document.getElementById("cerrar-sesion");
+    const salir = document.getElementById("cerrar-sesion");
     salir.addEventListener("click", cerrarSesion);
 
     cerrarSesion();
@@ -30,18 +30,17 @@ function mostrarError(evento) {
 
 function comenzar(evento) {
     bd = evento.target.result;
-    var transaccion = bd.transaction(["darkMode"]);
-    var almacen = transaccion.objectStore("darkMode");
-    var puntero = almacen.openCursor(null, "prev");
-    puntero.addEventListener("success", loadTheme); 
-    
-    mostrar();
+
+    let transaccion = bd.transaction(["darkMode"]);
+    let almacen = transaccion.objectStore("darkMode");
+    let solicitud = almacen.get(1);
+
+    solicitud.addEventListener("success", loadTheme);
     }
 
 function loadTheme(evento) {
-    var puntero = evento.target.result;
-    if (puntero) {
-        let modo = puntero.value.theme;
+
+        let modo = evento.target.result.theme;
         let modoOn = (modo == true) ? "dark-theme-variables" : null;
         document.body.classList.add(`${modoOn}`);
         if (document.body.classList.contains("dark-theme-variables")){
@@ -52,28 +51,37 @@ function loadTheme(evento) {
             document.getElementById("sun").classList.add("active");
             document.getElementById("moon").classList.remove("active");
         }
-    }
-    else{
-        return;
-    }
 
-     mostrar();   
+     mostrar(); 
+    //  let options = {
+    //     numberPerPage:16,
+    //     goBar:true, 
+    //     pageCounter:false,
+    // };
+
+    // let filterOptions = {
+    //     el:"#searchBox"
+    // };
+    //  paginate.init("#tab-ingresos", options, filterOptions);
 }
 
 function crearTablas(evento) {
     var baseDeDatos = evento.target.result;
     var tabIngresos = baseDeDatos.createObjectStore("tabIngresos", {keyPath: "id", autoIncrement: true});
     tabIngresos.createIndex("porFecha", "fecha", {unique: false});
+    tabIngresos.createIndex("porYear", "year", {unique: false});
+    tabIngresos.createIndex("porMes", "mes", {unique: false});
     tabIngresos.createIndex("porHora", "hora", {unique: false});
     tabIngresos.createIndex("porHabitacion", "habitacion", {unique: false});
     tabIngresos.createIndex("porDetalle", "detalle", {unique: false});
     tabIngresos.createIndex("porServicio", "servicio", {unique: false});
     tabIngresos.createIndex("porCantidad", "cantidad", {unique: false});
     tabIngresos.createIndex("porPrecioUnitario", "precioUnitario", {unique: false});
+    tabIngresos.createIndex("porPrecioUnitario2", "precioUnitario2", {unique: false});
     tabIngresos.createIndex("porTipoPago", "tipoPago", {unique: false});
     tabIngresos.createIndex("porEncargado", "encargado", {unique: false});
     tabIngresos.createIndex("porSubTotal", "subTotal", {unique: false});
-    tabIngresos.createIndex("porSubTotal2", "subTotal", {unique: false});
+    tabIngresos.createIndex("porSubTotal2", "subTotal2", {unique: false});
     tabIngresos.createIndex("porObservaciones", "observaciones", {unique: false});
 
     
@@ -83,7 +91,7 @@ function crearTablas(evento) {
 
 //================= Funciones utilitarias =================
 
-function formatoMoneda(fin){
+function subTotal(fin){
     let cantidad = document.getElementById(`cantidad-ingreso${fin}`).value;
     let precioUnitario = document.getElementById(`precio-ingreso${fin}`).value;
 
@@ -94,55 +102,24 @@ function formatoMoneda(fin){
         document.getElementById(`cantidad-ingreso${fin}`).classList.remove("negativo");
         document.getElementById("precio-ingreso1").classList.remove("negativo");
         let subt = cantidad * precioUnitario;
-        let cadena1 = subt.toString();
-        let cadena2, cadena3, cadena4, cadenaFinal;
-
-    switch(cadena1.length){
-        case 4:
-                cadena2 = cadena1.substring(0, 1);
-                cadena3 = cadena1.substring(1, 4);
-                cadenaFinal = `$${cadena2}.${cadena3}`;
-                break;
-            case 5:
-                cadena2 = cadena1.substring(0, 2);
-                cadena3 = cadena1.substring(2, 5);
-                cadenaFinal = `$${cadena2}.${cadena3}`;
-                break;
-            case 6:
-                cadena2 = cadena1.substring(0, 3);
-                cadena3 = cadena1.substring(3, 6);
-                cadenaFinal = `$${cadena2}.${cadena3}`;
-                break;
-            case 7:
-                cadena2 = cadena1.substring(0, 1);
-                cadena3 = cadena1.substring(1, 4);
-                cadena4 = cadena1.substring(4, 7);
-                cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}`;
-                break;
-            case 8:
-                cadena2 = cadena1.substring(0, 2);
-                cadena3 = cadena1.substring(2, 5);
-                cadena4 = cadena1.substring(5, 8);
-                cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}`;
-                break;
-
-            default:
-                cadenaFinal = `$${subt}`;
-                break;
-        }  
-        document.getElementById(`txt-subtotal${fin}`).value = cadenaFinal;  
+        
+        document.getElementById(`txt-subtotal${fin}`).value = moneda(subt); 
     }
 }    
 
 function nuevoIngreso(fin, id1="") {
     let id = id1;
     let fecha = document.getElementById(`fecha-ingreso${fin}`).value;
+    let objetoFecha = new Date(fecha);
+    let year = objetoFecha.getFullYear();
+    let mes = objetoFecha.getMonth();
     let hora = document.getElementById(`hora-ingreso${fin}`).value;
     let habitacion = document.getElementById(`lista-habitaciones${fin}`).value;
     let servicio = document.getElementById(`lista-servicios${fin}`).value;
     let detalle = document.getElementById(`detalle-ingreso${fin}`).value.toLowerCase();
     let cantidad = document.getElementById(`cantidad-ingreso${fin}`).value;
     let precioUnitario = document.getElementById(`precio-ingreso${fin}`).value;
+    let precioUnitario2 = moneda(precioUnitario);
     let tipoPago = document.getElementById(`tipo-pago${fin}`).value;
     let encargado = document.getElementById(`lista-encargados${fin}`).value;
     let subTotal = cantidad*precioUnitario;
@@ -152,10 +129,11 @@ function nuevoIngreso(fin, id1="") {
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
     if (id == "") {
-        almacen.put({fecha, hora, habitacion, detalle, servicio, cantidad, 
-        precioUnitario, tipoPago, encargado, subTotal, subTotal2});}else{
-        almacen.put({id, fecha, hora, habitacion, detalle, servicio, cantidad, 
-        precioUnitario, tipoPago, encargado, subTotal, subTotal2});
+        almacen.put({fecha, year, mes, hora, habitacion, detalle, servicio, cantidad, 
+        precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
+    }else{
+        almacen.put({id, fecha, year, mes, hora, habitacion, detalle, servicio, cantidad, 
+        precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
         }
     // }
     // else{
@@ -168,14 +146,23 @@ function nuevoIngreso(fin, id1="") {
 }
 
 function mostrar() {
-    contIngresos = 0;
+    var miFecha = null, miMes = null, miYear = null, miFiltro = null, miIndex = null, theIndex = null;
+    let options = {
+        numberPerPage:16,
+        goBar:true, 
+        pageCounter:false,
+    };
+
+    let filterOptions = {
+        el:"#searchBox"
+    };
     // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
     <thead>
         <tr>
             <th class="fecha th2">Fecha</th>
-            <td class="hora th2">Hora</td>
+            <th class="hora th2">Hora</th>
             <th class="habitacion th2">Hab.</th>
             <th class="servicio th2">Servicio</th>
             <th class="detalle th2">Cliente / Detalle</th>
@@ -193,10 +180,71 @@ function mostrar() {
     `;
     cuerpoTablaHTML="";
     document.querySelector("table#tab-ingresos tbody").innerHTML = "";
+    miFecha = new Date();
+    miYear = miFecha.getFullYear();
+    miMes = miFecha.getMonth();
+    console.log(document.getElementById("lista-rango-i").value);
+    if (document.getElementById("lista-rango-i").value == "1"){
+        miIndex = "porMes";
+        miFiltro = miMes;
+    }else if (document.getElementById("lista-rango-i").value == "2"){
+        miIndex = "porYear";
+        miFiltro = miYear;
+    }
+
+console.log(miIndex, miFiltro);
     var transaccion = bd.transaction(["tabIngresos"]);
     var almacen = transaccion.objectStore("tabIngresos");
-    var puntero = almacen.openCursor(null, "prev");
-    puntero.addEventListener("success", mostrarIngresos);      
+    // var puntero = almacen.openCursor(null, "prev");
+
+    theIndex = almacen.index(miIndex);
+    var request = theIndex.getAll(miFiltro);
+
+    request.addEventListener("success", cargarDatos);
+
+    // puntero.addEventListener("success", mostrarIngresos);      
+}
+function cargarDatos(evento){
+    var options = {
+        numberPerPage:16,
+        goBar:true, 
+        pageCounter:false,
+    };
+
+    var filterOptions = {
+        el:"#searchBox"
+    };
+    let data =evento.target.result;
+    console.log(data);
+    for (let i=0; i<data.length; i++){
+        var {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario2,
+            tipoPago, encargado, subTotal, subTotal2} = data[i];
+
+            cuerpoTablaHTML += `
+            <tr class="" id="${id}">
+                <td class="fecha" id="fe${id}">${fecha}</td>
+                <td class='centrar' id="ho${id}">${hora}</td>
+                <td class="centrar habitacion" id="ha${id}">${habitacion}</td>
+                <td class="servicio" id="se${id}">${servicio}</td>
+                <td class="detalle" id="de${id}">${detalle}</td>
+                <td class="cantidad" id="ca${id}">${cantidad}</td>
+                <td class="moneda" id="pr${id}">${precioUnitario2}</td>
+                <td class="moneda" id="su${id}">${subTotal2}</td>
+                <td class="pago" id="ti${id}">${tipoPago}</td>
+                <td class="turno" id="en${id}">${encargado}</td>
+                <td class="btnFilas" onclick="showModal(${id})">
+                <span class="icon-pencil primary"></span></td>
+                <td class="btnFilas" onclick="eliminarIngreso(${id})">
+                <span class="icon-trash-can-outline danger"></span></td>
+            </tr>`;
+
+            totalIngresos += subTotal;
+    }
+            document.getElementById("cuerpoTabla").innerHTML = cuerpoTablaHTML;
+            document.getElementById("total-registros2").innerText = data.length;
+            document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
+            totalIngresos = 0;
+            paginate.init("#tab-ingresos", options, filterOptions); 
 }
 
 function mostrarIngresos(evento) {
@@ -213,8 +261,8 @@ function mostrarIngresos(evento) {
     // Desestructurar 
     if (puntero) { 
         contIngresos += 1;
-        let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario,
-            tipoPago, encargado, subTotal2, observaciones} = puntero.value;
+        let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario2,
+            tipoPago, encargado, subTotal, subTotal2} = puntero.value;
 
         cuerpoTablaHTML += `
             <tr class="" id="${id}">
@@ -224,7 +272,7 @@ function mostrarIngresos(evento) {
                 <td class="servicio" id="se${id}">${servicio}</td>
                 <td class="detalle" id="de${id}">${detalle}</td>
                 <td class="cantidad" id="ca${id}">${cantidad}</td>
-                <td class="moneda" id="pr${id}">${precioUnitario}</td>
+                <td class="moneda" id="pr${id}">${precioUnitario2}</td>
                 <td class="moneda" id="su${id}">${subTotal2}</td>
                 <td class="pago" id="ti${id}">${tipoPago}</td>
                 <td class="turno" id="en${id}">${encargado}</td>
@@ -233,6 +281,8 @@ function mostrarIngresos(evento) {
                 <td class="btnFilas" onclick="eliminarIngreso(${id})">
                 <span class="icon-trash-can-outline danger"></span></td>
             </tr>`;
+
+        totalIngresos += subTotal;
         
         puntero.continue();
         
@@ -241,8 +291,9 @@ function mostrarIngresos(evento) {
             document.querySelector("table#tab-ingresos tbody").innerHTML = cuerpoTablaHTML;
             paginate.init("#tab-ingresos", options, filterOptions); 
             document.getElementById("total-registros2").innerText = contIngresos;
-            // contIngresos = 0;
-            
+            document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
+            contIngresos = 0;
+            totalIngresos = 0;
         }
 }
 
@@ -344,9 +395,6 @@ function toggleDark(theme){
     document.getElementById("moon").classList.toggle("active");
 
     document.body.classList.toggle("dark-theme-variables");
-    console.log(document.body.classList);
-    console.log(document.getElementById("sun").classList)
-    console.log(document.getElementById("moon").classList)
 
     var transaccion = bd.transaction(["darkMode"], "readwrite");
     var almacen = transaccion.objectStore("darkMode");
@@ -361,6 +409,56 @@ function toggleDark(theme){
         almacen.put({id, theme});
     }
     
+}
+
+function moneda(valor){ //Convierte números enteros en cadena de texto con formato de moneda hasta $99.999.999.999
+    let cadena1, cadena2, cadena3, cadena4, cadena5, cadenaFinal;
+    cadena1 = valor.toString();
+
+    switch(cadena1.length){
+        case 4:
+                cadena2 = cadena1.substring(0, 1);
+                cadena3 = cadena1.substring(1, 4);
+                return cadenaFinal = `$${cadena2}.${cadena3}`;
+            case 5:
+                cadena2 = cadena1.substring(0, 2);
+                cadena3 = cadena1.substring(2, 5);
+                return cadenaFinal = `$${cadena2}.${cadena3}`;
+            case 6:
+                cadena2 = cadena1.substring(0, 3);
+                cadena3 = cadena1.substring(3, 6);
+                return cadenaFinal = `$${cadena2}.${cadena3}`;
+            case 7:
+                cadena2 = cadena1.substring(0, 1);
+                cadena3 = cadena1.substring(1, 4);
+                cadena4 = cadena1.substring(4, 7);
+                return cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}`;
+            case 8:
+                cadena2 = cadena1.substring(0, 2);
+                cadena3 = cadena1.substring(2, 5);
+                cadena4 = cadena1.substring(5, 8);
+                return cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}`;
+            case 9:
+                cadena2 = cadena1.substring(0, 3);
+                cadena3 = cadena1.substring(3, 6);
+                cadena4 = cadena1.substring(6, 9);
+                return cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}`;
+            case 10:
+                cadena2 = cadena1.substring(0, 1);
+                cadena3 = cadena1.substring(1, 4);
+                cadena4 = cadena1.substring(4, 7);
+                cadena5 = cadena1.substring(7, 10);
+                return cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}.${cadena5}`;
+            case 11:
+                cadena2 = cadena1.substring(0, 2);
+                cadena3 = cadena1.substring(2, 5);
+                cadena4 = cadena1.substring(5, 8);
+                cadena5 = cadena1.substring(8, 11);
+                return cadenaFinal = `$${cadena2}.${cadena3}.${cadena4}.${cadena5}`;
+
+            default:
+                return cadenaFinal = `$${cadena1}`;
+        }  
 }
 
 function filtrar(id){

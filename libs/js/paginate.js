@@ -251,7 +251,7 @@
 
         var addGoToPage = function(){
             let inputBox = "<input type='number' id='paginate_page_to_go' value='1' min='1' max=''"+ settings.numberOfPages +"'>";
-            let goButton = "<input type='button' id='paginate-go-button' value='Go' onclick='paginate.goToPage()'>  ";
+            let goButton = "<input type='button' class='ir' id='paginate-go-button' value='Ir' onclick='paginate.goToPage()'>  ";
             return inputBox + goButton;
         }
 
@@ -274,16 +274,20 @@
             // Verificando si la tabla tiene encaebzado
             let hasHead = (firstRow === "TH");
             // contadores de bucles, para comenzar a contar desde las filas [1] (2da fila) si la primera fila tiene una etiqueta de encabezado
-            let $i,$ii,$j = (hasHead)?1:0;
+            let $i, $ii, $j = 1;
             // contiene la primera fila si tiene un (<th>) y nada si (<td>)
-            th = (hasHead?table.rows[(0)].outerHTML:"");
+            th = null;
+            th = table.rows[(0)].outerHTML;
+            tr = [];
+            console.log(th);
             pageCount = Math.ceil(rowCount / numberPerPage);
             settings.numberOfPages = pageCount;
 
             if (pageCount >= 1) {
                 settings.hasPagination = true;
-                for ($i = $j,$ii = 0; $i < rowCount; $i++, $ii++)
+                for ($i = $j, $ii = 0; $i < rowCount; $i++, $ii++)
                     tr[$ii] = table.rows[$i].outerHTML;
+                    // console.log(tr[$ii]);
                 // Contenedor de los botones "paginate_controls"
                 table.insertAdjacentHTML("afterend","<div id='buttons' class='paginate paginate_controls'></div");
                 // Inicializando la tabla en la pagina 1
@@ -298,9 +302,13 @@
              * para ser mostrado en la página seleccionada,
              * startPoint: la primera fila en cada página, Do The Math
              **/
-            let rows = th,startPoint = ((settings.numberPerPage * selectedPageNumber)-settings.numberPerPage);
-            for (let $i = startPoint; $i < (startPoint+settings.numberPerPage) && $i < tr.length; $i++)
+            let startPoint, rows = "";
+            rows = th,startPoint = ((settings.numberPerPage * selectedPageNumber)-settings.numberPerPage);
+            console.log(tr.length);
+            for (let $i = startPoint; $i < (startPoint+settings.numberPerPage) && $i < tr.length; $i++){
                 rows += tr[$i];
+                console.log($i);
+            }
 
             table.innerHTML = rows;
             document.getElementById("buttons").innerHTML = pageButtons(pageCount,selectedPageNumber);
