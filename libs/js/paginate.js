@@ -279,7 +279,6 @@
             th = null;
             th = table.rows[(0)].outerHTML;
             tr = [];
-            console.log(th);
             pageCount = Math.ceil(rowCount / numberPerPage);
             settings.numberOfPages = pageCount;
 
@@ -287,7 +286,6 @@
                 settings.hasPagination = true;
                 for ($i = $j, $ii = 0; $i < rowCount; $i++, $ii++)
                     tr[$ii] = table.rows[$i].outerHTML;
-                    // console.log(tr[$ii]);
                 // Contenedor de los botones "paginate_controls"
                 table.insertAdjacentHTML("afterend","<div id='buttons' class='paginate paginate_controls'></div");
                 // Inicializando la tabla en la pagina 1
@@ -304,10 +302,8 @@
              **/
             let startPoint, rows = "";
             rows = th,startPoint = ((settings.numberPerPage * selectedPageNumber)-settings.numberPerPage);
-            console.log(tr.length);
             for (let $i = startPoint; $i < (startPoint+settings.numberPerPage) && $i < tr.length; $i++){
                 rows += tr[$i];
-                console.log($i);
             }
 
             table.innerHTML = rows;

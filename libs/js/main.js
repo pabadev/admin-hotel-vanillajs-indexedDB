@@ -18,8 +18,8 @@ function iniciar() {
     const salir = document.getElementById("cerrar-sesion");
     salir.addEventListener("click", cerrarSesion);
 
-    cerrarSesion();
-
+    // cerrarSesion();
+    toggleElement("a-ingreso");
 }
 
 //================= Derivadas de "Iniciar()" =================
@@ -31,11 +31,27 @@ function mostrarError(evento) {
 function comenzar(evento) {
     bd = evento.target.result;
 
-    let transaccion = bd.transaction(["darkMode"]);
+    var transaccion = bd.transaction(["darkMode"], "readwrite");
     let almacen = transaccion.objectStore("darkMode");
-    let solicitud = almacen.get(1);
+    var puntero = almacen.openCursor(null, "prev");
+    puntero.addEventListener("success", setTheme);
+    }
 
-    solicitud.addEventListener("success", loadTheme);
+function setTheme(evento){
+    let puntero = evento.target.result;
+    let id = 1;
+    let theme = false;
+    if(puntero){
+        let transaccion2 = bd.transaction(["darkMode"]);
+        let almacen2 = transaccion2.objectStore("darkMode");
+        let solicitud = almacen2.get(1);
+
+        solicitud.addEventListener("success", loadTheme);
+        }else{
+        let transaccion = bd.transaction(["darkMode"], "readwrite");
+        let almacen = transaccion.objectStore("darkMode");
+        almacen.put({id, theme}); 
+    }
     }
 
 function loadTheme(evento) {
@@ -53,16 +69,6 @@ function loadTheme(evento) {
         }
 
      mostrar(); 
-    //  let options = {
-    //     numberPerPage:16,
-    //     goBar:true, 
-    //     pageCounter:false,
-    // };
-
-    // let filterOptions = {
-    //     el:"#searchBox"
-    // };
-    //  paginate.init("#tab-ingresos", options, filterOptions);
 }
 
 function crearTablas(evento) {
@@ -71,7 +77,9 @@ function crearTablas(evento) {
     tabIngresos.createIndex("porFecha", "fecha", {unique: false});
     tabIngresos.createIndex("porYear", "year", {unique: false});
     tabIngresos.createIndex("porMes", "mes", {unique: false});
+    tabIngresos.createIndex("porDia", "dia", {unique: false});
     tabIngresos.createIndex("porHora", "hora", {unique: false});
+    tabIngresos.createIndex("porTimeStamp", "timeStamp", {unique: false});
     tabIngresos.createIndex("porHabitacion", "habitacion", {unique: false});
     tabIngresos.createIndex("porDetalle", "detalle", {unique: false});
     tabIngresos.createIndex("porServicio", "servicio", {unique: false});
@@ -107,12 +115,16 @@ function subTotal(fin){
     }
 }    
 
-function nuevoIngreso(fin, id1="") {
+function nuevoIngreso(fin, id1=""){
     let id = id1;
     let fecha = document.getElementById(`fecha-ingreso${fin}`).value;
-    let objetoFecha = new Date(fecha);
+    let fechaCadena = fecha+"T00:00:00";
+    let objetoFecha = new Date(fechaCadena);
+    let timeStamp = Date.parse(fechaCadena);
     let year = objetoFecha.getFullYear();
-    let mes = objetoFecha.getMonth();
+    let mes = `${year}:`+objetoFecha.getMonth();
+    let dia = `${mes}:${objetoFecha.getDate()}`;
+    console.log(objetoFecha);
     let hora = document.getElementById(`hora-ingreso${fin}`).value;
     let habitacion = document.getElementById(`lista-habitaciones${fin}`).value;
     let servicio = document.getElementById(`lista-servicios${fin}`).value;
@@ -129,10 +141,10 @@ function nuevoIngreso(fin, id1="") {
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
     if (id == "") {
-        almacen.put({fecha, year, mes, hora, habitacion, detalle, servicio, cantidad, 
+        almacen.put({fecha, year, mes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
     }else{
-        almacen.put({id, fecha, year, mes, hora, habitacion, detalle, servicio, cantidad, 
+        almacen.put({id, fecha, year, mes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
         }
     // }
@@ -147,15 +159,6 @@ function nuevoIngreso(fin, id1="") {
 
 function mostrar() {
     var miFecha = null, miMes = null, miYear = null, miFiltro = null, miIndex = null, theIndex = null;
-    let options = {
-        numberPerPage:16,
-        goBar:true, 
-        pageCounter:false,
-    };
-
-    let filterOptions = {
-        el:"#searchBox"
-    };
     // document.getElementById("form-ingreso1").reset();
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
@@ -176,37 +179,52 @@ function mostrar() {
     </thead>
     <tbody id="cuerpoTabla">
     </tbody>
-</table>
+    </table>
     `;
+
     cuerpoTablaHTML="";
     document.querySelector("table#tab-ingresos tbody").innerHTML = "";
+
     miFecha = new Date();
     miYear = miFecha.getFullYear();
-    miMes = miFecha.getMonth();
-    console.log(document.getElementById("lista-rango-i").value);
+    miMes = `${miYear}:`+miFecha.getMonth();
+    miDia = `${miMes}:`+(miFecha.getDate());
+    // console.log(miFecha.getDate());
     if (document.getElementById("lista-rango-i").value == "1"){
-        miIndex = "porMes";
-        miFiltro = miMes;
-    }else if (document.getElementById("lista-rango-i").value == "2"){
-        miIndex = "porYear";
-        miFiltro = miYear;
-    }
+        miIndex = "porDia";
+        miFiltro = miDia;
+        buscarIndice(miIndex, miFiltro);
+        }else if (document.getElementById("lista-rango-i").value == "2"){
+            miIndex = "porMes";
+            miFiltro = miMes;
+            buscarIndice(miIndex, miFiltro);
+            }else if (document.getElementById("lista-rango-i").value == "3"){
+                miIndex = "porYear";
+                miFiltro = miYear;
+                buscarIndice(miIndex, miFiltro);
+                }else if (document.getElementById("lista-rango-i").value == "4"){
+                    var transaccion = bd.transaction(["tabIngresos"]);
+                    var almacen = transaccion.objectStore("tabIngresos");
+                    var puntero = almacen.openCursor(null, "prev");
+                    puntero.addEventListener("success", mostrarIngresos);
+                    }else{
+                        return;
+                        }      
+}
 
-console.log(miIndex, miFiltro);
+function buscarIndice(indice, filtro){
     var transaccion = bd.transaction(["tabIngresos"]);
     var almacen = transaccion.objectStore("tabIngresos");
-    // var puntero = almacen.openCursor(null, "prev");
 
-    theIndex = almacen.index(miIndex);
-    var request = theIndex.getAll(miFiltro);
+    theIndex = almacen.index(indice);
+    var request = theIndex.getAll(filtro);
 
     request.addEventListener("success", cargarDatos);
-
-    // puntero.addEventListener("success", mostrarIngresos);      
 }
+
 function cargarDatos(evento){
     var options = {
-        numberPerPage:16,
+        numberPerPage:15,
         goBar:true, 
         pageCounter:false,
     };
@@ -215,9 +233,8 @@ function cargarDatos(evento){
         el:"#searchBox"
     };
     let data =evento.target.result;
-    console.log(data);
-    for (let i=0; i<data.length; i++){
-        var {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario2,
+    for (let i=(data.length-1); i>=0; i--){
+        var {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
             tipoPago, encargado, subTotal, subTotal2} = data[i];
 
             cuerpoTablaHTML += `
@@ -228,7 +245,8 @@ function cargarDatos(evento){
                 <td class="servicio" id="se${id}">${servicio}</td>
                 <td class="detalle" id="de${id}">${detalle}</td>
                 <td class="cantidad" id="ca${id}">${cantidad}</td>
-                <td class="moneda" id="pr${id}">${precioUnitario2}</td>
+                <td class="moneda" id="pr${id}" style="display: none">${precioUnitario}</td>
+                <td class="moneda" id="pr2${id}">${precioUnitario2}</td>
                 <td class="moneda" id="su${id}">${subTotal2}</td>
                 <td class="pago" id="ti${id}">${tipoPago}</td>
                 <td class="turno" id="en${id}">${encargado}</td>
@@ -250,7 +268,7 @@ function cargarDatos(evento){
 function mostrarIngresos(evento) {
     var puntero = evento.target.result;
     let options = {
-        numberPerPage:16,
+        numberPerPage:15,
         goBar:true, 
         pageCounter:false,
     };
@@ -261,7 +279,7 @@ function mostrarIngresos(evento) {
     // Desestructurar 
     if (puntero) { 
         contIngresos += 1;
-        let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario2,
+        let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
             tipoPago, encargado, subTotal, subTotal2} = puntero.value;
 
         cuerpoTablaHTML += `
@@ -272,7 +290,8 @@ function mostrarIngresos(evento) {
                 <td class="servicio" id="se${id}">${servicio}</td>
                 <td class="detalle" id="de${id}">${detalle}</td>
                 <td class="cantidad" id="ca${id}">${cantidad}</td>
-                <td class="moneda" id="pr${id}">${precioUnitario2}</td>
+                <td class="moneda" id="pr${id}" style="display: none">${precioUnitario}</td>
+                <td class="moneda" id="pr2${id}">${precioUnitario2}</td>
                 <td class="moneda" id="su${id}">${subTotal2}</td>
                 <td class="pago" id="ti${id}">${tipoPago}</td>
                 <td class="turno" id="en${id}">${encargado}</td>
@@ -385,11 +404,11 @@ function toggleElement(idElement){ //===== on/off la clase active elementos del 
         }
     }
     if (document.querySelector(".a-tabla-i").style.display == "grid"){
-        document.getElementById("searchBox").addEventListener("keyup", e => {if (e.key == "Enter"){ filtrar("buscar-i");}});
+        document.getElementById("searchBox").addEventListener("keyup", e => {if (e.key == "Enter"){ buscar("buscar-i");}});
     }
 }
 
-function toggleDark(theme){
+function toggleDark(){
 
     document.getElementById("sun").classList.toggle("active");
     document.getElementById("moon").classList.toggle("active");
@@ -461,7 +480,7 @@ function moneda(valor){ //Convierte números enteros en cadena de texto con form
         }  
 }
 
-function filtrar(id){
+function buscar(id){
     if(id=="buscar-i"){
         if(document.getElementById("searchBox").value.trim() !== ""){
             paginate.filter();
@@ -469,7 +488,7 @@ function filtrar(id){
             document.getElementById("cerrar-buscar-i").style.display = "flex";
             document.getElementById("searchBox").addEventListener("keyup", e => {
                 if (e.key == "Backspace" || e.key == "Delete"){
-                    filtrarOff();
+                    buscarOff();
                 }
                 else{ return; }
             });
@@ -482,7 +501,7 @@ function filtrar(id){
     }
 }
 
-function filtrarOff(){
+function buscarOff(){
     if(document.getElementById("searchBox").value.trim() == ""){
         paginate.filter();
         document.getElementById("cerrar-buscar-i").style.display = "none";

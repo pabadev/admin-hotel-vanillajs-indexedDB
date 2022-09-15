@@ -177,18 +177,19 @@
     <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
         <div class="info-tabla">
             <div class="filtro-tab-ingresos info-tabla">
-                <label class="total-registros">Mostrar desde:</label>
-                <select name="lista-rango-tab-i" class="total-registros2" id="lista-rango-i" oninput="mostrar()">
-                    <option value="1">Este Mes</option>
-                    <option value="2">Este Año</option>
-                    <option value="3">Todo</option>
+                <label class="">Mostrar desde:</label>
+                <select name="lista-rango-tab-i" id="lista-rango-i" oninput="mostrar()">
+                    <option value="1">Hoy</option>
+                    <option value="2" selected>Este Mes</option>
+                    <option value="3">Este Año</option>
+                    <option value="4">Todo</option>
                     <span class="icon-arrow-collapse-down"></span>
                 </select>
             </div>
             <div class="search" id="search">
                 <input type="text" id="searchBox" class="" placeholder="Buscar en la tabla" autocomplete="off">
-                <span id="buscar-i" class="icon-search" onclick="filtrar(id)"></span>
-                <span id="cerrar-buscar-i" class="icon-close" onclick="filtrar(id)" style="display: none;"></span>
+                <span id="buscar-i" class="icon-search" onclick="buscar(id)"></span>
+                <span id="cerrar-buscar-i" class="icon-close" onclick="buscar(id)" style="display: none;"></span>
             </div>
             <div class="info-tabla">
                 <label for="" class="total-registros">Total Registros:</label>

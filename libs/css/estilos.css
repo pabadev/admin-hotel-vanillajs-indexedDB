@@ -180,7 +180,7 @@
     margin: 0;
     padding: 0;
     outline: 0;
-    appearance: none;
+    /* appearance: none; */
     border: 0;
     text-decoration: none;
     list-style: none;
@@ -446,7 +446,7 @@ main{
     border-radius: 0.6rem;
   }
   
-  form *{
+  * body form *{
     padding: 0;
     margin: 0;
     display: flex;
@@ -669,9 +669,29 @@ main{
 }
 .caja-tabla .info-tabla{
   display: flex;
-  /* gap: 1rem; */
   align-items: center;
   justify-content: space-between;
+}
+.filtro-tab-ingresos{
+  display: flex;
+  height: 27px;
+  background-color: var(--color-light);
+  align-items: center;
+  padding: 0px 15px 0px 15px;
+  border: 1px solid var(--primaryColor);
+  border-radius: var(--card-border-radius);
+}
+.filtro-tab-ingresos *{
+  display: flex;
+  height: 27px;
+  background-color: transparent;
+  align-items: center;
+  letter-spacing: 0.5px;
+  color: var(--primaryColor);
+  font-weight: bold;
+}
+#lista-rango-i{
+  text-align: center;
 }
 .total-registros{
   display: flex;
