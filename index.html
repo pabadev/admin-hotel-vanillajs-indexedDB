@@ -94,16 +94,16 @@
         <form name="form-ingreso1" id="form-ingreso1" class="form-ingreso">
 			<div class="caja-select">
 				<label class="label2" for="fecha1">Fecha</label>  
-				<input type="date" name="fecha1" id="fecha-ingreso1" class="input">
+				<input type="date" name="fecha1" id="fecha-ingreso1" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="hora1">Hora</label>  
 				<!-- <div class="separador"></div> -->
-				<input type="time" name="hora1" id="hora-ingreso1" class="input">
+				<input type="time" name="hora1" id="hora-ingreso1" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="lista-habitaciones1">Habitación</label>
-				<select name="lista-habitaciones1" id="lista-habitaciones1" class="input">
+				<select name="lista-habitaciones1" id="lista-habitaciones1" class="input validar-nuevo-i">
 					<option value=""></option>
 					<option value="1">1</option>
 					<option value="2">2</option>
@@ -114,7 +114,7 @@
 
 			<div class="caja-select">
 				<label class="label2" for="lista-servicios1">Servicio</label>
-				<select name="lista-servicios1" id="lista-servicios1" class="input">
+				<select name="lista-servicios1" id="lista-servicios1" class="input validar-nuevo-i">
 					<option value=""></option>
 					<option value="Hospedaje">Hospedaje</option>
 					<option value="Restaurante">Restaurante</option>
@@ -125,19 +125,19 @@
 
 			<div class="caja-select">
 				<label class="label2" for="detalle-ingreso1">Detalle</label>
-				<input type="text" name="detalle-ingreso1" id="detalle-ingreso1" autocomplete="off" class="input">
+				<input type="text" name="detalle-ingreso1" id="detalle-ingreso1" autocomplete="off" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="cantidad-ingreso1">Cantidad</label>
-				<input type="number" name="cantidad-ingreso1" id="cantidad-ingreso1" min="1" max="100" autocomplete="off" oninput="subTotal(1)" class="input">
+				<input type="number" name="cantidad-ingreso1" id="cantidad-ingreso1" min="1" max="100" autocomplete="off" oninput="subTotal(1)" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="precio-ingreso1">Precio</label>
-				<input type="number" name="precio-ingreso1" id="precio-ingreso1" autocomplete="off" oninput="subTotal(1)" class="input">
+				<input type="number" name="precio-ingreso1" id="precio-ingreso1" autocomplete="off" oninput="subTotal(1)" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="tipo-pago1">Pago</label>
-				<select name="tipo-pago1" id="tipo-pago1" class="input">
+				<select name="tipo-pago1" id="tipo-pago1" class="input validar-nuevo-i">
 					<option value=""></option>
 					<option value="Efectivo">Efectivo</option>
 					<option value="Factura">Factura</option>
@@ -149,7 +149,7 @@
 
 			<div class="caja-select">
 				<label class="label2" for="lista-encargados1">Turno</label>
-				<select name="lista-encargados1" id="lista-encargados1" class="input">
+				<select name="lista-encargados1" id="lista-encargados1" class="input validar-nuevo-i">
 					<option value=""></option>
 					<option value="Día">Día</option>
 					<option value="Noche">Noche</option>
@@ -158,14 +158,14 @@
 
             <!-- <div class="caja-select">
                 <label class="label2" for="observaciones1">Obser...</label>
-                <input type="text" name="observaciones1" id="observaciones1" placeholder="Observaciones" autocomplete="off" class="input">
+                <input type="text" name="observaciones1" id="observaciones1" placeholder="Observaciones" autocomplete="off" class="input validar-nuevo-i">
             </div> -->
             <div class="caja-subtotal">
 				<label for="txt-subtotal1" class="lsubt" id="subtotal1">Subtotal</label>
 				<input type="text" class="tsubt" id="txt-subtotal1" name="txt-subtotal1" disabled="true" readonly value="$0">
 			</div>
             <div class="fondo-blanco">
-                <button id="boton-ingreso" class="btn-form" onclick="nuevoIngreso(1)">Guardar</button>
+                <button id="boton-ingreso" class="btn-form" onclick="validarForm('.validar-nuevo-i', 1, '')">Guardar</button>
             </div>
         </form>
 <!-- </section> -->
@@ -175,35 +175,50 @@
 <!--======================= TABLA INGRESOS====================== -->
 
     <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
-        <div class="info-tabla">
-            <div class="filtro-tab-ingresos info-tabla">
-                <label class="">Mostrar desde:</label>
-                <select name="lista-rango-tab-i" id="lista-rango-i" oninput="mostrar()">
-                    <option value="1">Hoy</option>
-                    <option value="2" selected>Este Mes</option>
-                    <option value="3">Este Año</option>
-                    <option value="4">Todo</option>
-                    <span class="icon-arrow-collapse-down"></span>
-                </select>
-            </div>
+        <div class="info-tabla-gral">
             <div class="search" id="search">
                 <input type="text" id="searchBox" class="" placeholder="Buscar en la tabla" autocomplete="off">
                 <span id="buscar-i" class="icon-search" onclick="buscar(id)"></span>
                 <span id="cerrar-buscar-i" class="icon-close" onclick="buscar(id)" style="display: none;"></span>
             </div>
-            <div class="info-tabla">
-                <label for="" class="total-registros">Total Registros:</label>
-                <label for="" id="total-registros2" class="total-registros2"></label>
+            <div class="filtro-tab-ingresos info-tabla">
+                <label class="">Mostrar:</label>
+                <select name="lista-rango-tab-i" id="lista-rango-i" oninput="mostrar()">
+                    <option value="1">Hoy</option>
+                    <option value="2">Este Mes</option>
+                    <option value="3">Este Año</option>
+                    <option value="4" selected>Todo</option>
+                    <option value="5">Rango</option>
+                    <span class="icon-arrow-collapse-down"></span>
+                </select>
             </div>
             <div class="info-tabla">
-                <label for="" class="total-registros">Total Ingresos:</label>
-                <label for="" id="total-ingresos2" class="total-registros2"></label>
+                <label id="label-inicio-i" class="total-registros disabled">Desde:</label>
+                <input name="fecha-inicio-i" type="date" id="fecha-inicio-i" class="total-registros2 disabled" disabled></input>
+            </div>
+            <div class="info-tabla">
+                <label id="label-fin-i" class="total-registros disabled">Hasta:</label>
+                <input type="date" id="fecha-fin-i" class="total-registros2 disabled" disabled></input>
             </div>
 
         </div>
         
         <div class="borde-tabla" id="borde-tabla">
         </div>
+
+        <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
+            <div class="info-tabla-gral bottom">
+                <div class="info-tabla">
+                    <label for="" class="total-registros">Total Registros:</label>
+                    <label for="" id="total-registros2" class="total-registros2"></label>
+                </div>
+                <div class="info-tabla">
+                    <label for="" class="total-registros">Total Ingresos:</label>
+                    <label for="" id="total-ingresos2" class="total-registros2"></label>
+                </div>
+    
+            </div>
+
     </div>
     <!--======================= FORM EDITAR INGRESO====================== -->
 
@@ -221,15 +236,15 @@
         <form name="form-editar" id="form-editar" class="form-ingreso">
             <div class="caja-select">
                 <label class="label2" for="fecha2">Fecha</label>  
-                <input type="date" name="fecha2" id="fecha-ingreso2" class="input">
+                <input type="date" name="fecha2" id="fecha-ingreso2" class="input validar-edit-i">
             </div>
             <div class="caja-select">
                 <label class="label2" for="hora2">Hora</label>  
-                <input type="time" name="hora2" id="hora-ingreso2" class="input">
+                <input type="time" name="hora2" id="hora-ingreso2" class="input validar-edit-i">
             </div>
             <div class="caja-select">
                 <label class="label2" for="lista-habitaciones2">Habitación</label>
-                <select name="lista-habitaciones2" id="lista-habitaciones2" class="input">
+                <select name="lista-habitaciones2" id="lista-habitaciones2" class="input validar-edit-i">
                     <option value=""></option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -240,7 +255,7 @@
 
             <div class="caja-select">
                 <label class="label2" for="lista-servicios2">Servicio</label>
-                <select name="lista-servicios2" id="lista-servicios2" class="input">
+                <select name="lista-servicios2" id="lista-servicios2" class="input validar-edit-i">
                     <option value=""></option>
                     <option value="Hospedaje">Hospedaje</option>
                     <option value="Restaurante">Restaurante</option>
@@ -251,19 +266,19 @@
             
             <div class="caja-select">
                 <label class="label2" for="detalle-ingreso2">Detalle</label>
-                <input type="text" name="detalle-ingreso2" id="detalle-ingreso2" placeholder="Cliente / Detalle" autocomplete="off" class="input">
+                <input type="text" name="detalle-ingreso2" id="detalle-ingreso2" placeholder="Cliente / Detalle" autocomplete="off" class="input validar-edit-i">
             </div>
             <div class="caja-select">
                 <label class="label2" for="cantidad-ingreso2">Cantidad</label>
-                <input type="number" name="cantidad-ingreso2" id="cantidad-ingreso2" min="1" max="100" placeholder="Cantidad" autocomplete="off" oninput="subTotal(2)" class="input">
+                <input type="number" name="cantidad-ingreso2" id="cantidad-ingreso2" min="1" max="100" placeholder="Cantidad" autocomplete="off" oninput="subTotal(2)" class="input validar-edit-i">
             </div>
             <div class="caja-select">
                 <label class="label2" for="precio-ingreso2">Precio</label>
-                <input type="number" name="precio-ingreso2" id="precio-ingreso2" placeholder="Precio" autocomplete="off" oninput="subTotal(2)" class="input">
+                <input type="number" name="precio-ingreso2" id="precio-ingreso2" placeholder="Precio" autocomplete="off" oninput="subTotal(2)" class="input validar-edit-i">
             </div>
                 <div class="caja-select">
                     <label class="label2" for="tipo-pago2">Pago</label>
-                    <select name="tipo-pago2" id="tipo-pago2" class="input">
+                    <select name="tipo-pago2" id="tipo-pago2" class="input validar-edit-i">
                         <option value=""></option>
                         <option value="Efectivo">Efectivo</option>
                         <option value="Factura">Factura</option>
@@ -275,7 +290,7 @@
                 
                 <div class="caja-select">
                     <label class="label2" for="lista-encargados2">Turno</label>
-                    <select name="lista-encargados2" id="lista-encargados2" class="input">
+                    <select name="lista-encargados2" id="lista-encargados2" class="input validar-edit-i">
                         <option value=""></option>
                         <option value="Día">Día</option>
                         <option value="Noche">Noche</option>
@@ -284,7 +299,7 @@
 
                 <!-- <div class="caja-select">
                     <label class="label2" for="observaciones2">Obser...</label>
-                    <input type="text" name="observaciones2" id="observaciones2" placeholder="Observaciones" autocomplete="off" class="input">
+                    <input type="text" name="observaciones2" id="observaciones2" placeholder="Observaciones" autocomplete="off" class="input validar-edit-i">
                 </div> -->
                 <div class="caja-subtotal">
                     <label for="txt-subtotal2" class="lsubt" id="subtotal2">Subtotal</label>

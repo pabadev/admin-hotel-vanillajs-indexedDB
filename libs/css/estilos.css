@@ -154,12 +154,13 @@
     --padding-1: 1.2rem;
 
     /* --box-shadow: 0 2rem 3rem var(--color-light); */
-    --box-shadow: 0 1.5rem 2rem var(--color-light);
-    --box-shadow2: 0 3rem 4rem 1rem var(--color-light);
+    /* --box-shadow: 0 1.5rem 2rem var(--color-light); */
+    --box-shadow: 0 1rem 2rem rgba(64, 86, 209, 0.5);
+    --box-shadow2: 0 1rem 2rem rgba(64, 86, 209, 0.2);
     
     --primaryColor: #4775f7;
     --lightgray: #efefef;
-    --gray: #b4b2b2;
+    --gray: #a1a1a1;
     --blue: #739df7;
     --white: #fff;
     --black: rgba(0, 0, 0, 0.8);
@@ -172,8 +173,9 @@
   --color-dark: #f7f7f7;
   --color-dark-variant: #a3bdcc;
   --color-light: rgba(0, 0, 0, 0.4);
-  --box-shadow: 0 1.5rem 2rem var(--color-light);
-  --box-shadow2: 0 1.5rem 0rem var(--color-light);
+  --box-shadow: 0 1.5rem 2rem rgba(64, 86, 209, 0.2);
+  --box-shadow2: 0 1.5rem 2rem rgba(64, 86, 209, 0.2);
+  --gray: #575656;
 }
 
 *{
@@ -391,6 +393,7 @@ aside .sidebar a:hover span{
 main{
     margin-top: 1.3rem;
     margin-bottom: 5px;
+    box-shadow: var(--box-shadow);
 }
 
 /* -------------  MAIN  -------------*/
@@ -667,6 +670,12 @@ main{
   margin: auto;
   gap: 1rem;
 }
+.caja-tabla .info-tabla-gral{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
 .caja-tabla .info-tabla{
   display: flex;
   align-items: center;
@@ -689,6 +698,8 @@ main{
   letter-spacing: 0.5px;
   color: var(--primaryColor);
   font-weight: bold;
+  font-weight: 500;
+  font-size: 13px;
 }
 #lista-rango-i{
   text-align: center;
@@ -705,14 +716,15 @@ main{
   border-top-left-radius: var(--card-border-radius);
   letter-spacing: 0.5px;
   color: var(--primaryColor);
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 13px;
 }
 .total-registros2{
   display: flex;
   height: 27px;
   background-color: var(--color-light);
   align-items: center;
-  padding: 0px 15px 0px 0px;
+  padding: 0px 15px 0px 5px;
   border: 1px solid var(--primaryColor);
   border-left: none;
   border-bottom-right-radius: var(--card-border-radius);
@@ -720,6 +732,16 @@ main{
   color: var(--primaryColor);
   font-weight: bold;
   letter-spacing: 0.5px;
+}
+.dark-theme-variables .total-registros, .dark-theme-variables .total-registros2,
+.dark-theme-variables #search,
+.dark-theme-variables .filtro-tab-ingresos{
+  background-color: var(--color-white);
+  /* color: var(--gray); */
+}
+
+.total-registros.disabled, .total-registros2.disabled{
+  color: var(--gray)!important;
 }
 
 #search{
@@ -771,13 +793,6 @@ main #tab-ingresos{
   border-top-right-radius: var(--card-border-radius);
   padding: var(--card-padding);
   text-align: center;
-  box-shadow: none;
-  transition: all 300ms ease;
-}
-
-main #tab-ingresos:hover{
-  box-shadow: var(--box-shadow);
-  transition: all 300ms ease;
 }
 
 main #tab-ingresos tbody td{
@@ -886,8 +901,11 @@ td{
     padding: 5px 0px;
     margin-left: auto;
     margin-right: auto;
+    background-color: var(--color-light);
     color: var(--primaryColor);
     font-weight: bolder;
+    border-bottom-left-radius: var(--card-border-radius);
+    border-bottom-right-radius: var(--card-border-radius);
 }
 div.paginate input[type='button']:hover{
     cursor: pointer;
@@ -960,10 +978,11 @@ div.paginate input[type='button'].ir{
 
 /*====== RIGHT ======*/
 .right{
-  margin-top: 1.3rem;
-}
-.right:hover{
-  box-shadow: none;
+  margin-top: 0;
+  padding-top: 1.3rem;
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 .right .top{
   display: flex;
@@ -1035,7 +1054,7 @@ div.paginate input[type='button'].ir{
   margin-bottom: 1.4rem;
   padding: 1.6rem 0.7rem 1.6rem 0.7rem;
   border-radius: var(--card-border-radius);
-  box-shadow: var(--box-shadow);
+  box-shadow: var(--box-shadow2);
   transition: all 300ms ease;
   height: 6.2rem;
   border: 1px solid var(--primaryColor);
@@ -1044,9 +1063,10 @@ div.paginate input[type='button'].ir{
   box-shadow: none;
 }
 .right .analytics .item .right{
+  padding: 0;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin: 0;
   width: 100%;
   height: 100%;
@@ -1060,21 +1080,21 @@ div.paginate input[type='button'].ir{
   font-size: 1.2rem;
 }
 .right .analytics .item .info{
-  display: grid;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  height: 100%;
-  /* background-color: #bebc13; */
+  height: 80%;
 }
 .right .analytics .item .info2{
-  display: grid;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   text-align: center;
   /* gap: 0.8rem; */
-  height: 100%;
-  /* background-color: #9997a0; */
+  height: 80%;
 }
 
 .right .analytics .add-ingreso{
@@ -1100,15 +1120,6 @@ div.paginate input[type='button'].ir{
 }
 .right .analytics .add-ingreso div span{
   font-size: 1.2rem;
-}
-
-main{
-  box-shadow: var(--box-shadow);
-  /* border-radius: var(--card-border-radius); */
-  /* padding: 0 8px 0 8px; */
-}
-main:hover{
-  box-shadow: none;
 }
 
 

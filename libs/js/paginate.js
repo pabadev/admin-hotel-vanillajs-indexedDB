@@ -279,7 +279,8 @@
             th = null;
             th = table.rows[(0)].outerHTML;
             tr = [];
-            pageCount = Math.ceil(rowCount / numberPerPage);
+            pageCount = 0;
+            pageCount = Math.ceil((rowCount-1) / numberPerPage);
             settings.numberOfPages = pageCount;
 
             if (pageCount >= 1) {
@@ -328,8 +329,11 @@
                 hiddenPaginateControls();
             }
             const filter = document.querySelector(filterSettings.el).value.toUpperCase();
-            const trs = document.querySelectorAll( settings.el + ' tr:not(.header)');
+            const head1 = document.getElementById('head-2');
+            const trs = document.querySelectorAll('tr:not(.header)');
             trs.forEach(tr => tr.style.display = [...tr.children].find(td => td.innerHTML.toUpperCase().includes(filter)) ? '' : 'none');
+            
+            head1.style.display = "";
 
             if(filter.length == 0 && settings.hasPagination){
                 setNumberPerPage(_lignePaginate.getConstNumberPerPage());

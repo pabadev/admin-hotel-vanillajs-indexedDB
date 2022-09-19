@@ -124,7 +124,6 @@ function nuevoIngreso(fin, id1=""){
     let year = objetoFecha.getFullYear();
     let mes = `${year}:`+objetoFecha.getMonth();
     let dia = `${mes}:${objetoFecha.getDate()}`;
-    console.log(objetoFecha);
     let hora = document.getElementById(`hora-ingreso${fin}`).value;
     let habitacion = document.getElementById(`lista-habitaciones${fin}`).value;
     let servicio = document.getElementById(`lista-servicios${fin}`).value;
@@ -147,10 +146,7 @@ function nuevoIngreso(fin, id1=""){
         almacen.put({id, fecha, year, mes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
         }
-    // }
-    // else{
-        // alert("Debe escribir un texto para la nueva tarea");
-    // }
+
     if (fin == 2){
         cerrarModal();
     }else{};
@@ -158,12 +154,118 @@ function nuevoIngreso(fin, id1=""){
 }
 
 function mostrar() {
-    var miFecha = null, miMes = null, miYear = null, miFiltro = null, miIndex = null, theIndex = null;
+    var miFecha = null, miYear = null, miFiltro = null, miIndex = null;
+    
     // document.getElementById("form-ingreso1").reset();
+
+    miFecha = new Date();
+    miYear = miFecha.getFullYear();
+    miYearCadena = `${miYear}-01-01T00:00:00`;
+    miMesCadena = `${miYear}-0${miFecha.getMonth()+1}-01T00:00:00`;
+    miHoyCadena = `${miYear}-0${miFecha.getMonth()+1}-${miFecha.getDate()}T00:00:00`;
+    miIndex = "porTimeStamp";
+
+    if (document.getElementById("lista-rango-i").value == "1"){
+        let inicioI = Date.parse(miHoyCadena);
+        let finI = Date.parse(new Date);
+        let rangoI = IDBKeyRange.bound(inicioI, finI);
+        miFiltro = rangoI;
+        toggleRango(false);
+        buscarIndice(miIndex, miFiltro);
+        }else if (document.getElementById("lista-rango-i").value == "2"){
+            let inicioI = Date.parse(miMesCadena);
+            let finI = Date.parse(new Date);
+            let rangoI = IDBKeyRange.bound(inicioI, finI);
+            miFiltro = rangoI;
+            toggleRango(false);
+            buscarIndice(miIndex, miFiltro);
+            }else if (document.getElementById("lista-rango-i").value == "3"){
+                let inicioI = Date.parse(miYearCadena);
+                let finI = Date.parse(new Date);
+                let rangoI = IDBKeyRange.bound(inicioI, finI);
+                miFiltro = rangoI;
+                toggleRango(false);
+                buscarIndice(miIndex, miFiltro);
+                }else if (document.getElementById("lista-rango-i").value == "4"){
+                    let finI = Date.parse(new Date);
+                    let rangoI = IDBKeyRange.bound(0, finI);
+                    miFiltro = rangoI;
+                    toggleRango(false);
+                    buscarIndice(miIndex, miFiltro);
+                    }else if (document.getElementById("lista-rango-i").value == "5"){
+                        toggleRango(true);
+                        resetTableI();
+                        document.getElementById("total-registros2").innerText = 0;
+                        document.getElementById("total-ingresos2").innerText = moneda("0");
+
+                        document.getElementById("fecha-inicio-i").addEventListener("input", buscarRango);
+                        document.getElementById("fecha-fin-i").addEventListener("input", buscarRango);
+
+                        }else{
+                            resetTableI();
+                            return;
+                            }      
+}
+
+function toggleRango(value = false){
+    if (value){
+        document.getElementById("label-inicio-i").classList.remove("disabled");
+        document.getElementById("label-fin-i").classList.remove("disabled");
+        document.getElementById("fecha-inicio-i").classList.remove("disabled");
+        document.getElementById("fecha-fin-i").classList.remove("disabled");
+        document.getElementById("fecha-inicio-i").removeAttribute("disabled");
+        document.getElementById("fecha-fin-i").removeAttribute("disabled");  
+        return;    
+    } else{
+        document.getElementById("fecha-inicio-i").value = "";
+        document.getElementById("fecha-fin-i").value = "";
+        document.getElementById("label-inicio-i").classList.add("disabled");
+        document.getElementById("label-fin-i").classList.add("disabled");
+        document.getElementById("fecha-inicio-i").classList.add("disabled");
+        document.getElementById("fecha-fin-i").classList.add("disabled");
+        document.getElementById("fecha-inicio-i").setAttribute("disabled", "true");
+        document.getElementById("fecha-fin-i").setAttribute("disabled", "true"); 
+        return;
+    }
+}
+
+function buscarRango(){
+    let fechaIni = document.getElementById("fecha-inicio-i").value;
+    let inicioICadena = fechaIni+"T00:00:00";
+    let inicioI = Date.parse(inicioICadena);
+    let fechaFin = document.getElementById("fecha-fin-i").value;
+    let fechaFinCadena = fechaFin+"T00:00:00";
+    let finI = Date.parse(fechaFinCadena);
+    miIndex = "porTimeStamp";
+
+    if (fechaIni.trim() !== "" && fechaFin !== "" && finI >= inicioI){
+        let rangoI = IDBKeyRange.bound(inicioI, finI);
+        buscarIndice(miIndex, rangoI);
+        }else if (fechaIni.trim() !== "" && fechaFin !== "" && finI < inicioI){
+        resetTableI();
+        alert("La fecha inicial debe ser menor a la fecha final");
+        return;
+        }else{
+            return;
+        }
+}
+
+function buscarIndice(indice, filtro){
+    resetTableI();
+    var transaccion = bd.transaction(["tabIngresos"]);
+    var almacen = transaccion.objectStore("tabIngresos");
+
+    theIndex = almacen.index(indice);
+    var request = theIndex.openCursor(filtro, "prev");
+    request.addEventListener("success", mostrarIngresos);
+    request.addEventListener("error", resetTableI);
+}
+
+function resetTableI(){
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
-    <thead>
-        <tr>
+    <thead id = "head-i">
+        <tr id="head-2">
             <th class="fecha th2">Fecha</th>
             <th class="hora th2">Hora</th>
             <th class="habitacion th2">Hab.</th>
@@ -183,99 +285,12 @@ function mostrar() {
     `;
 
     cuerpoTablaHTML="";
-    document.querySelector("table#tab-ingresos tbody").innerHTML = "";
-
-    miFecha = new Date();
-    miYear = miFecha.getFullYear();
-    miMes = `${miYear}:`+miFecha.getMonth();
-    miDia = `${miMes}:`+(miFecha.getDate());
-    // console.log(miFecha.getDate());
-    if (document.getElementById("lista-rango-i").value == "1"){
-        miIndex = "porDia";
-        miFiltro = miDia;
-        buscarIndice(miIndex, miFiltro);
-        }else if (document.getElementById("lista-rango-i").value == "2"){
-            miIndex = "porMes";
-            miFiltro = miMes;
-            buscarIndice(miIndex, miFiltro);
-            }else if (document.getElementById("lista-rango-i").value == "3"){
-                miIndex = "porYear";
-                miFiltro = miYear;
-                buscarIndice(miIndex, miFiltro);
-                }else if (document.getElementById("lista-rango-i").value == "4"){
-                    var transaccion = bd.transaction(["tabIngresos"]);
-                    var almacen = transaccion.objectStore("tabIngresos");
-                    var puntero = almacen.openCursor(null, "prev");
-                    puntero.addEventListener("success", mostrarIngresos);
-                    }else{
-                        return;
-                        }      
-}
-
-function buscarIndice(indice, filtro){
-    var transaccion = bd.transaction(["tabIngresos"]);
-    var almacen = transaccion.objectStore("tabIngresos");
-
-    theIndex = almacen.index(indice);
-    var request = theIndex.getAll(filtro);
-
-    request.addEventListener("success", cargarDatos);
-}
-
-function cargarDatos(evento){
-    var options = {
-        numberPerPage:15,
-        goBar:true, 
-        pageCounter:false,
-    };
-
-    var filterOptions = {
-        el:"#searchBox"
-    };
-    let data =evento.target.result;
-    for (let i=(data.length-1); i>=0; i--){
-        var {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
-            tipoPago, encargado, subTotal, subTotal2} = data[i];
-
-            cuerpoTablaHTML += `
-            <tr class="" id="${id}">
-                <td class="fecha" id="fe${id}">${fecha}</td>
-                <td class='centrar' id="ho${id}">${hora}</td>
-                <td class="centrar habitacion" id="ha${id}">${habitacion}</td>
-                <td class="servicio" id="se${id}">${servicio}</td>
-                <td class="detalle" id="de${id}">${detalle}</td>
-                <td class="cantidad" id="ca${id}">${cantidad}</td>
-                <td class="moneda" id="pr${id}" style="display: none">${precioUnitario}</td>
-                <td class="moneda" id="pr2${id}">${precioUnitario2}</td>
-                <td class="moneda" id="su${id}">${subTotal2}</td>
-                <td class="pago" id="ti${id}">${tipoPago}</td>
-                <td class="turno" id="en${id}">${encargado}</td>
-                <td class="btnFilas" onclick="showModal(${id})">
-                <span class="icon-pencil primary"></span></td>
-                <td class="btnFilas" onclick="eliminarIngreso(${id})">
-                <span class="icon-trash-can-outline danger"></span></td>
-            </tr>`;
-
-            totalIngresos += subTotal;
-    }
-            document.getElementById("cuerpoTabla").innerHTML = cuerpoTablaHTML;
-            document.getElementById("total-registros2").innerText = data.length;
-            document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
-            totalIngresos = 0;
-            paginate.init("#tab-ingresos", options, filterOptions); 
+    document.getElementById("cuerpoTabla").innerHTML = "";
 }
 
 function mostrarIngresos(evento) {
     var puntero = evento.target.result;
-    let options = {
-        numberPerPage:15,
-        goBar:true, 
-        pageCounter:false,
-    };
-
-    let filterOptions = {
-        el:"#searchBox"
-    };
+    let options = {numberPerPage:15, goBar:true, pageCounter:false}, filterOptions = {el:"#searchBox"};
     // Desestructurar 
     if (puntero) { 
         contIngresos += 1;
@@ -307,12 +322,13 @@ function mostrarIngresos(evento) {
         
         }
         else {
-            document.querySelector("table#tab-ingresos tbody").innerHTML = cuerpoTablaHTML;
+            document.getElementById("cuerpoTabla").innerHTML = cuerpoTablaHTML;
             paginate.init("#tab-ingresos", options, filterOptions); 
             document.getElementById("total-registros2").innerText = contIngresos;
             document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
             contIngresos = 0;
             totalIngresos = 0;
+            cuerpoTablaHTML = "";
         }
 }
 
@@ -368,12 +384,20 @@ function editarIngreso(id2) {
     formu2.addEventListener("submit", (e) => {
     e.preventDefault();
     });
-    let texto = document.getElementById("detalle-ingreso2").value;
-        if(texto.trim() == ""){
+    validarForm(".validar-edit-i", 2, id2);
+}
+
+function validarForm(tag, fin, id2){
+    let inputs = document.querySelectorAll(tag);
+    let validar = 0;
+    inputs.forEach(element => {
+        validar += (element.value.trim() == "")? 0 : 1;       
+    });
+        if(validar < inputs.length){
             alert("Debe diligenciar los campos vacíos");
         }
         else{
-            nuevoIngreso(2, id2);
+            nuevoIngreso(fin, id2);
     }
 }
 
