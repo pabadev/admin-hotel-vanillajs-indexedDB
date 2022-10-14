@@ -1,6 +1,7 @@
 var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0, totalIngresos = 0;
 var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g", 
-                "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"];
+                "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"], activo = false;
+var dataRango = [], contIngresosGraf = 0, totalIngresosGraf = 0, iCursor = 0, meses = [], arrDatosMes = [], dataMes = [];
     
 
 // Módulo principal----------------------------------------------
@@ -35,7 +36,9 @@ function comenzar(evento) {
     let almacen = transaccion.objectStore("darkMode");
     var puntero = almacen.openCursor(null, "prev");
     puntero.addEventListener("success", setTheme);
-    }
+
+    // nuevoChart();
+}
 
 function setTheme(evento){
     let puntero = evento.target.result;
@@ -52,7 +55,7 @@ function setTheme(evento){
         let almacen = transaccion.objectStore("darkMode");
         almacen.put({id, theme}); 
     }
-    }
+}
 
 function loadTheme(evento) {
 
@@ -69,6 +72,11 @@ function loadTheme(evento) {
         }
 
      mostrar(); 
+     
+// porcentajes("prog-efectivo", 63, 1);
+// porcentajes("prog-credito", 37, 2);
+// porcentajes("prog-total", 100, 3);
+
 }
 
 function crearTablas(evento) {
@@ -116,14 +124,18 @@ function subTotal(fin){
 }    
 
 function nuevoIngreso(fin, id1=""){
+    console.log("hola");
     let id = id1;
     let fecha = document.getElementById(`fecha-ingreso${fin}`).value;
     let fechaCadena = fecha+"T00:00:00";
     let objetoFecha = new Date(fechaCadena);
+    let mesNum = objetoFecha.getMonth();
     let timeStamp = Date.parse(fechaCadena);
     let year = objetoFecha.getFullYear();
     let mes = `${year}:`+objetoFecha.getMonth();
     let dia = `${mes}:${objetoFecha.getDate()}`;
+    let meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    let nombreMes = meses[mesNum];
     let hora = document.getElementById(`hora-ingreso${fin}`).value;
     let habitacion = document.getElementById(`lista-habitaciones${fin}`).value;
     let servicio = document.getElementById(`lista-servicios${fin}`).value;
@@ -140,13 +152,14 @@ function nuevoIngreso(fin, id1=""){
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
     var almacen = transaccion.objectStore("tabIngresos");
     if (id == "") {
-        almacen.put({fecha, year, mes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
+        almacen.put({fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
     }else{
-        almacen.put({id, fecha, year, mes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
+        almacen.put({id, fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
         }
 
+        showSnackbar();
     if (fin == 2){
         cerrarModal();
     }else{};
@@ -154,57 +167,67 @@ function nuevoIngreso(fin, id1=""){
 }
 
 function mostrar() {
-    var miFecha = null, miYear = null, miFiltro = null, miIndex = null;
+    var miFecha = null, miYear = null, miFiltro = null, miIndex = null, mesNum = null, diaNum = null;
     
     // document.getElementById("form-ingreso1").reset();
 
     miFecha = new Date();
     miYear = miFecha.getFullYear();
+    mesNum = (miFecha.getMonth() < 9) ? `0${miFecha.getMonth()+1}` : `${miFecha.getMonth()+1}`;
+    diaNum = (miFecha.getDate() < 10) ? `0${miFecha.getDate()}` : `${miFecha.getDate()}`;
     miYearCadena = `${miYear}-01-01T00:00:00`;
-    miMesCadena = `${miYear}-0${miFecha.getMonth()+1}-01T00:00:00`;
-    miHoyCadena = `${miYear}-0${miFecha.getMonth()+1}-${miFecha.getDate()}T00:00:00`;
+    miMesCadena = `${miYear}-${mesNum}-01T00:00:00`;
+    miHoyCadena = `${miYear}-${mesNum}-${diaNum}T00:00:00`;
+    // console.log(diaNum);
     miIndex = "porTimeStamp";
+    let opciones = parseInt(document.getElementById("lista-rango-i").value);
+    let arrDesde = [miHoyCadena, miMesCadena, miYearCadena, 0];
 
-    if (document.getElementById("lista-rango-i").value == "1"){
-        let inicioI = Date.parse(miHoyCadena);
+    if (opciones !== 5){
+        let inicioI = Date.parse(arrDesde[opciones-1]);
         let finI = Date.parse(new Date);
         let rangoI = IDBKeyRange.bound(inicioI, finI);
         miFiltro = rangoI;
-        toggleRango(false);
-        buscarIndice(miIndex, miFiltro);
-        }else if (document.getElementById("lista-rango-i").value == "2"){
-            let inicioI = Date.parse(miMesCadena);
-            let finI = Date.parse(new Date);
-            let rangoI = IDBKeyRange.bound(inicioI, finI);
-            miFiltro = rangoI;
-            toggleRango(false);
-            buscarIndice(miIndex, miFiltro);
-            }else if (document.getElementById("lista-rango-i").value == "3"){
-                let inicioI = Date.parse(miYearCadena);
-                let finI = Date.parse(new Date);
-                let rangoI = IDBKeyRange.bound(inicioI, finI);
-                miFiltro = rangoI;
-                toggleRango(false);
-                buscarIndice(miIndex, miFiltro);
-                }else if (document.getElementById("lista-rango-i").value == "4"){
-                    let finI = Date.parse(new Date);
-                    let rangoI = IDBKeyRange.bound(0, finI);
-                    miFiltro = rangoI;
-                    toggleRango(false);
-                    buscarIndice(miIndex, miFiltro);
-                    }else if (document.getElementById("lista-rango-i").value == "5"){
-                        toggleRango(true);
-                        resetTableI();
-                        document.getElementById("total-registros2").innerText = 0;
-                        document.getElementById("total-ingresos2").innerText = moneda("0");
+        toggleRango();
+        buscarIndice(miIndex, miFiltro, opciones);
+    } else{
+        toggleRango(true);
+        resetTableI();
+        document.getElementById("total-registros2").innerText = 0;
+        document.getElementById("total-ingresos2").innerText = moneda("0");
 
-                        document.getElementById("fecha-inicio-i").addEventListener("input", buscarRango);
-                        document.getElementById("fecha-fin-i").addEventListener("input", buscarRango);
+        document.getElementById("fecha-inicio-i").addEventListener("input", buscarRango);
+        document.getElementById("fecha-fin-i").addEventListener("input", buscarRango);
+    }                           
+}
 
-                        }else{
-                            resetTableI();
-                            return;
-                            }      
+function mostrarGrafico() {
+    var miFecha = null, miYear = null, miFiltro = null, miIndex = null, mesNum = null, diaNum = null;
+    
+    // document.getElementById("lista-graf-i").options[2].setAttribute("selected", "selected");
+
+    miFecha = new Date();
+    miYear = miFecha.getFullYear();
+    mesNum = (miFecha.getMonth() < 9) ? `0${miFecha.getMonth()+1}` : `${miFecha.getMonth()+1}`;
+    diaNum = (miFecha.getDate() < 10) ? `0${miFecha.getDate()}` : `${miFecha.getDate()}`;
+    miYearCadena = `${miYear}-01-01T00:00:00`;
+    miMesCadena = `${miYear}-${mesNum}-01T00:00:00`;
+    miHoyCadena = `${miYear}-${mesNum}-${diaNum}T00:00:00`;
+    // console.log(diaNum);
+    miIndex = "porTimeStamp";
+    let opciones = parseInt(document.getElementById("lista-graf-i").value);
+    let arrDesde = [miHoyCadena, miMesCadena, miYearCadena, 0];
+
+    if (opciones !== 5){
+        let inicioI = Date.parse(arrDesde[opciones-1]);
+        let finI = Date.parse(new Date);
+        let rangoI = IDBKeyRange.bound(inicioI, finI);
+        miFiltro = rangoI;
+        toggleRango();
+        buscarIndiceGraf(miIndex, miFiltro);
+    } else{
+        toggleRango(true);
+    }            
 }
 
 function toggleRango(value = false){
@@ -250,15 +273,28 @@ function buscarRango(){
         }
 }
 
-function buscarIndice(indice, filtro){
+async function buscarIndice(indice, filtro, op){
     resetTableI();
     var transaccion = bd.transaction(["tabIngresos"]);
     var almacen = transaccion.objectStore("tabIngresos");
 
     theIndex = almacen.index(indice);
-    var request = theIndex.openCursor(filtro, "prev");
-    request.addEventListener("success", mostrarIngresos);
+    var request = await theIndex.openCursor(filtro, "prev");
+    request.addEventListener("success", (evento) => 
+        {
+          mostrarIngresos(evento, op)
+
+        });
     request.addEventListener("error", resetTableI);
+}
+
+async function buscarIndiceGraf(indice, filtro){
+    var transaccion = bd.transaction(["tabIngresos"]);
+    var almacen = transaccion.objectStore("tabIngresos");
+
+    theIndex = almacen.index(indice);
+    var request = await theIndex.openCursor(filtro);
+    request.addEventListener("success", navegarCursor);
 }
 
 function resetTableI(){
@@ -288,11 +324,12 @@ function resetTableI(){
     document.getElementById("cuerpoTabla").innerHTML = "";
 }
 
-function mostrarIngresos(evento) {
+function mostrarIngresos(evento, op) {
     var puntero = evento.target.result;
     let options = {numberPerPage:15, goBar:true, pageCounter:false}, filterOptions = {el:"#searchBox"};
     // Desestructurar 
     if (puntero) { 
+        // console.log(puntero.value);
         contIngresos += 1;
         let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
             tipoPago, encargado, subTotal, subTotal2} = puntero.value;
@@ -317,6 +354,7 @@ function mostrarIngresos(evento) {
             </tr>`;
 
         totalIngresos += subTotal;
+        dataMes.push(puntero.value);
         
         puntero.continue();
         
@@ -329,6 +367,22 @@ function mostrarIngresos(evento) {
             contIngresos = 0;
             totalIngresos = 0;
             cuerpoTablaHTML = "";
+            document.getElementById("searchBox").value = "";
+            buscarOff();
+            datosMes(dataMes, op);
+            dataMes = [];
+        }
+}
+
+function navegarCursor(evento) {
+    var puntero = evento.target.result;
+    // Desestructurar 
+    if (puntero) { 
+        dataRango.push(puntero.value);
+        puntero.continue();
+        }
+        else {
+          nuevoChart(dataRango);
         }
 }
 
@@ -356,8 +410,6 @@ function showModal(id){
     let encargado =  document.querySelector(`#en${id}`).innerHTML;
     let subtotal =  document.querySelector(`#su${id}`).innerHTML;
     // let observaciones =  document.querySelector(`#ob${id}`).innerHTML;
-
-    
 
     document.getElementById("modal1").classList.add("isVisible");
     document.getElementById("modal-dialog").classList.add("animation");
@@ -416,12 +468,17 @@ function cerrarSesion(){ //======== Oculta todas las secciones dentro de MAIN ==
     document.getElementById("cerrar-sesion").classList.remove("active");
 }
 
-function toggleElement(idElement){ //===== on/off la clase active elementos del menu ====//
+function toggleElement(idElement){ //===== on/off la clase active elementos del menu ====// 
     for (let i=0; i<arrMenu.length; i++){ //===== Oculta el reto de secciones ====//
         if (idElement == arrMenu[i]){
             document.getElementById(idElement).classList.add("active");
             document.querySelector(`.${arrMenu[i]}`).style.display = "grid";
             document.querySelector(`.${idElement}`).classList.add("animation");
+
+            if (idElement == "a-dashboard"){
+              mostrarGrafico();
+            }
+
         } else{
             document.getElementById(arrMenu[i]).classList.remove("active");
             document.getElementById(`${arrMenu[i]}id`).style.display = "none";
@@ -451,6 +508,7 @@ function toggleDark(){
         let theme = false;
         almacen.put({id, theme});
     }
+    
     
 }
 
@@ -519,9 +577,7 @@ function buscar(id){
         }else{return;}
     }else{
         document.getElementById("searchBox").value = "";
-        paginate.filter();
-        document.getElementById("cerrar-buscar-i").style.display = "none";
-        document.getElementById("buscar-i").style.display = "flex";
+        buscarOff();
     }
 }
 
@@ -532,4 +588,325 @@ function buscarOff(){
         document.getElementById("buscar-i").style.display = "flex";
         document.getElementById("searchBox").value = "";
     }
+}
+
+async function nuevoChart(datos) {
+  let arrColorLight = ["#111111", "#d3d3d4"];
+  let arrColorDark = ["#f7f7f7", "#40414b"];
+  let condicion = body.classList.contains("dark-theme-variables")
+    ? true
+    : false;
+  let colorText = condicion ? arrColorDark[0] : arrColorLight[0];
+  let colorLineas = condicion ? arrColorDark[1] : arrColorLight[1];
+  Chart.defaults.color = colorText;
+  Chart.defaults.borderColor = colorLineas;
+  let colorGreen = "#048f42";
+  let colorBlue = "#4775f7";
+  let colorRed = "#fc3a4a";
+
+  let meses = [...new Set(datos.map((data) => data.nombreMes))];
+  filtrado = meses.map(
+    (mesActual) => datos.filter((data) => data.nombreMes === mesActual).length
+  );
+  let porMeses = meses.map((mesActual) =>
+    datos.filter((data) => data.nombreMes === mesActual)
+  );
+  let arrSubTotal = porMeses.map((mes) => mes.map((dia) => dia.subTotal));
+  let subTotalmes = arrSubTotal.map((item) =>
+    item.reduce((acc, el) => acc + el, 0)
+  );
+
+  let tipoPago = [...new Set(datos.map((data) => data.tipoPago))];
+  let porTipoPago = tipoPago.map((pagoActual) =>
+    datos.filter((data) => data.tipoPago === pagoActual)
+  );
+  let arrSubTotalTipoPago = porTipoPago.map((tipo) =>
+    tipo.map((x) => x.subTotal)
+  );
+  let subTotalTipoPago = arrSubTotalTipoPago.map((item) =>
+    item.reduce((acc, el) => acc + el, 0)
+  );
+
+  let servicio = [...new Set(datos.map((data) => data.servicio))];
+  let porServicio = servicio.map((item) =>
+    datos.filter((data) => data.servicio === item)
+  );
+  let arrServicio = porServicio.map((item) => item.map((x) => x.subTotal));
+  let subTotalServicio = arrServicio.map((item) =>
+    item.reduce((acc, el) => acc + el, 0)
+  );
+
+  let turno = [...new Set(datos.map((data) => data.encargado))];
+  let porTurno = turno.map((item) =>
+    datos.filter((data) => data.encargado === item)
+  );
+  let arrTurno = porTurno.map((item) => item.map((x) => x.subTotal));
+  let subTotalTurno = arrTurno.map((item) =>
+    item.reduce((acc, el) => acc + el, 0)
+  );
+  let turno1 = subTotalTurno[0];
+  let turno2 = subTotalTurno[1];
+
+  var ctx1 = document.getElementById("chartResumen").getContext("2d");
+  await new Chart(ctx1, {
+    type: "line",
+    data: {
+      labels: meses,
+      datasets: [
+        {
+          label: "Ingresos",
+          data: subTotalmes,
+          backgroundColor: colorBlue,
+          borderColor: colorBlue,
+          borderWidth: 1,
+          pointBorderWidth: 1,
+          tension: 0.3,
+        },
+        {
+          label: "Gastos",
+          backgroundColor: colorRed,
+          borderColor: colorRed,
+          data: [-2, -1, -3, 0, -1, -3, -1, -2, 0, -3, -2, 0],
+          borderColor: colorRed,
+          borderWidth: 1,
+          pointBorderWidth: 1,
+          tension: 0.3,
+        },
+        {
+          label: "Utilidad",
+          backgroundColor: colorGreen,
+          borderColor: colorGreen,
+          data: [
+            5000, 7000, 6000, 3000, 4000, 7000, 3000, 5000, 6000, 4000, 3000,
+            5000,
+          ],
+          borderColor: colorGreen,
+          borderWidth: 1,
+          pointBorderWidth: 1,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+
+  var ctx = document.getElementById("chartInGastos").getContext("2d");
+  await new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: meses,
+      datasets: [
+        {
+          label: "Ingresos",
+          backgroundColor: colorBlue,
+          borderColor: "white",
+          data: subTotalmes,
+        },
+        {
+          label: "Gastos",
+          backgroundColor: colorRed,
+          borderColor: "yellow",
+          data: [
+            5000, 7000, 6000, 3000, 4000, 7000, 3000, 5000, 6000, 4000, 3000,
+            5000,
+          ],
+        },
+      ],
+    },
+    options: { responsive: true },
+  });
+
+  var ctx2 = document.getElementById("chartPago").getContext("2d");
+  await new Chart(ctx2, {
+    type: "doughnut",
+    data: {
+      datasets: [
+        {
+          data: subTotalTipoPago,
+          borderColor: colorsChart(90),
+          backgroundColor: colorsChart(95),
+          label: "Comparacion de navegadores",
+        },
+      ],
+      labels: tipoPago,
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "left" },
+      },
+    },
+  });
+
+  var ctx4 = document.getElementById("chartServicio").getContext("2d");
+  await new Chart(ctx4, {
+    type: "doughnut",
+    data: {
+      datasets: [
+        {
+          data: subTotalServicio,
+          borderColor: colorsChart(90),
+          backgroundColor: colorsChart(95),
+          label: "Comparacion de navegadores",
+        },
+      ],
+      labels: servicio,
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "left" },
+      },
+    },
+  });
+
+  var ctx5 = document.getElementById("chartTurno").getContext("2d");
+  await new Chart(ctx5, {
+    type: "bar",
+    data: {
+      labels: [moneda(turno1), moneda(turno2)],
+      datasets: [
+        {
+          label: turno[0],
+          borderColor: colorBlue,
+          backgroundColor: colorBlue,
+          data: [turno1, 0],
+        },
+        {
+          label: turno[1],
+          borderColor: colorGreen,
+          backgroundColor: colorGreen,
+          data: [0, turno2, 1],
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        legend: { position: "top" },
+      },
+      indexAxis: "y",
+      responsive: true,
+    },
+  });
+
+//   ebableEventHandlers();
+
+}
+
+const ebableEventHandlers = () => {
+
+}
+
+const colorsChart = (opacidad) => {
+  const arrColores = [
+    "#4775f7",
+    "#048f42",
+    "#fc3a4a",
+    "#bc28f7",
+    "#70ee3e",
+    "#f8454e",
+  ];
+  return arrColores.map((color) => (opacidad ? `${color}${opacidad}` : color));
+};
+
+// ========PORCENTAJES CIRCULARES===============
+
+function porcentajes(id, porcentaje, num) {
+  let circulo = document.getElementById(id);
+  let percentage = document.getElementById(`texto-${id}`);
+  let cantidad = 0;
+  let radio = 2 * Math.PI * circulo.r.baseVal.value;
+  let descuento = radio / 100;
+  let arrColor = [
+    "var(--color-success)",
+    "var(--primaryColor)",
+    "var(--color-danger)",
+  ];
+  circulo.style.strokeDasharray = radio;
+  circulo.style.stroke = arrColor[num - 1];
+  // console.log(radio);
+
+  let tiempo = setInterval(() => {
+    cantidad += 1;
+    let valores = Math.ceil((radio -= descuento));
+    percentage.textContent = cantidad + "%";
+    circulo.style.strokeDashoffset = valores;
+    if (cantidad >= porcentaje) {
+      clearInterval(tiempo);
+      percentage.textContent = porcentaje + "%";
+    }
+  }, 10);
+}
+
+function datosMes(datos, op) {
+  if (op !== 3 || activo === true) {
+    return;
+  } else {
+    let meses = [...new Set(datos.map((data) => data.nombreMes))];
+
+    let porMeses = meses.map((mesActual) =>
+      datos.filter((data) => data.nombreMes === mesActual)
+    );
+
+    let mesActual = porMeses[0];
+    let arrSubTotal = mesActual.map((x) => x.subTotal);
+    let totalmes = arrSubTotal.reduce((acc, el) => acc + el, 0);
+
+    let efectivo = mesActual.filter(
+      (x) => x.tipoPago === "Factura" || x.tipoPago === "Efectivo"
+    );
+    let arrEfectivo = efectivo.map((x) => x.subTotal);
+
+    let totalEfectivo = arrEfectivo.reduce((acc, el) => acc + el, 0);
+    let porcentaje1 = parseFloat(((totalEfectivo / totalmes) * 100).toFixed(1));
+
+    let electronico = mesActual.filter(
+      (x) => x.tipoPago === "Tarjeta" || x.tipoPago === "Transferencia"
+    );
+    let arrElectronico = electronico.map((x) => x.subTotal);
+
+    let totalElectronico = arrElectronico.reduce((acc, el) => acc + el, 0);
+    let porcentaje2 = parseFloat(
+      ((totalElectronico / totalmes) * 100).toFixed(1)
+    );
+
+    let credito = mesActual.filter((x) => x.tipoPago === "Crédito");
+    let arrCredito = credito.map((x) => x.subTotal);
+
+    let totalCredito = arrCredito.reduce((acc, el) => acc + el, 0);
+    let porcentaje3 = parseFloat(((totalCredito / totalmes) * 100).toFixed(1));
+
+    document.getElementById("total-mes").innerText = moneda(totalmes);
+    document.getElementById("i-cont-mes").innerText = moneda(totalEfectivo);
+    document.getElementById("i-elec-mes").innerText = moneda(totalElectronico);
+    document.getElementById("i-cred-mes").innerText = moneda(totalCredito);
+
+    console.log(totalmes);
+    console.log(totalEfectivo);
+    console.log(totalElectronico);
+    console.log(totalCredito);
+
+    porcentajes("prog-efectivo", porcentaje1, 1);
+    porcentajes("prog-credito", porcentaje2, 2);
+    porcentajes("prog-total", porcentaje3, 3);
+
+    let = activo = true;
+  }
+}
+
+function showSnackbar() {
+  var snackBar = 
+    document.getElementById("snackbar")
+  // Dynamically Appending class
+  // to HTML element 
+  snackBar.className = "show-bar";
+
+  setTimeout(function () {
+     // Dynamically Removing the Class 
+     // from HTML element
+     // By Replacing it with an Empty
+     // String after 5 seconds
+     snackBar.className = 
+        snackBar.className.replace("show-bar", ""); 
+  }, 3000);
 }

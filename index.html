@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./libs/css/estilos.css">
     <link rel="icon" href="./libs/img/favicon-hotelplus.png" type="image/png" sizes="16x16">
-    <script src="./libs/js/main.js"></script>
+    <script src="./libs/js/chart.js"></script>
     <script src="./libs/js/paginate.js"></script>
+    <script src="./libs/js/main.js"></script>
 
     <title>Hotel Plus</title>
 </head>
@@ -75,14 +76,77 @@
         </aside>
 
         <!--    -----FIN DE ASIDE--------    -->
+
 	<main>
-        <div class="a-dashboard" id="a-dashboardid"></div>
-        <div class="a-gasto" id="a-gastoid"></div>
-        <div class="a-tabla-g" id="a-tabla-gid"></div>
-        <div class="a-clientes"  id="a-clientesid"></div>
-        <div class="a-proveedores" id="a-proveedoresid"></div>
-        <div class="a-configuraciones" id="a-configuracionesid"></div>
-        <div class="a-usuarios" id="a-usuariosid"></div>
+<!--======================= CHART ====================== -->
+    <div class="a-dashboard" id="a-dashboardid" style="display: none;">
+        <div class="info-tabla-gral info-graf">
+            <h3 class="h3">Resumen de Ingresos</h3>
+            
+            <div class="filtro-rangos info-tabla">
+                <label class="">Seleccionar Año:</label>
+                <select name="lista-rango-graf-i" id="lista-graf-i">
+                    <option value="1">Hoy</option>
+                    <option value="2">Este Mes</option>
+                    <option value="3" selected>Este Año</option>
+                    <option value="4">Todo</option>
+                    <option value="5">Rango</option>
+                    <span class="icon-arrow-collapse-down"></span>
+                </select>
+            </div>
+        </div>
+<!--================== Graficos =====================-->
+            <div class="grafico chartResumen">
+                <div class="titulo-graf">
+                    <h3>Resumen Anual</h3>
+                </div>
+                <canvas id="chartResumen"></canvas>
+            </div>
+            <div class="graficos">
+                <div class="grafico">
+                    <div class="titulo-graf">
+                        <h3>Por Tipo de Servicio</h3>
+                    </div>
+                    <canvas id="chartServicio"></canvas>
+                </div>
+                <div class="grafico">
+                    <div class="titulo-graf">
+                        <h3>Por Tipo de pago</h3>
+                    </div>
+                    <canvas id="chartPago"></canvas>
+                </div>
+            </div>
+
+        <div class="graficos">
+
+            <div class="grafico">
+                <div class="titulo-graf">
+                    <h3>Ingresos y Gastos</h3>
+                </div>
+                <canvas id="chartInGastos"></canvas>
+            </div>
+
+            
+            <div class="grafico">
+                <div class="titulo-graf">
+                    <h3>Por Turno</h3>
+                </div>
+                <canvas id="chartTurno"></canvas>
+            </div>
+        </div>     
+        
+        <br><h3 class="h3">Resumen de Gastos</h3>
+
+<!--================== Fin de Graficos =====================-->
+    </div>
+
+<!--======================= FIN DE CHART ====================== -->
+        <div class="a-gasto" id="a-gastoid" style="display: none;"></div>
+        <div class="a-tabla-g" id="a-tabla-gid" style="display: none;"></div>
+        <div class="a-clientes"  id="a-clientesid" style="display: none;"></div>
+        <div class="a-proveedores" id="a-proveedoresid" style="display: none;"></div>
+        <div class="a-configuraciones" id="a-configuracionesid" style="display: none;"></div>
+        <div class="a-usuarios" id="a-usuariosid" style="display: none;"></div>
 
 <!--======================= FORM NUEVO INGRESO====================== -->
         <div class="recuadro" id="modal-form">
@@ -166,6 +230,7 @@
 			</div>
             <div class="fondo-blanco">
                 <button id="boton-ingreso" class="btn-form" onclick="validarForm('.validar-nuevo-i', 1, '')">Guardar</button>
+
             </div>
         </form>
 <!-- </section> -->
@@ -174,20 +239,20 @@
 
 <!--======================= TABLA INGRESOS====================== -->
 
-    <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
+    <div class="caja-tabla a-tabla-i" id="a-tabla-iid" style="display: none;">
         <div class="info-tabla-gral">
             <div class="search" id="search">
                 <input type="text" id="searchBox" class="" placeholder="Buscar en la tabla" autocomplete="off">
                 <span id="buscar-i" class="icon-search" onclick="buscar(id)"></span>
                 <span id="cerrar-buscar-i" class="icon-close" onclick="buscar(id)" style="display: none;"></span>
             </div>
-            <div class="filtro-tab-ingresos info-tabla">
+            <div class="filtro-rangos info-tabla">
                 <label class="">Mostrar:</label>
                 <select name="lista-rango-tab-i" id="lista-rango-i" oninput="mostrar()">
                     <option value="1">Hoy</option>
                     <option value="2">Este Mes</option>
-                    <option value="3">Este Año</option>
-                    <option value="4" selected>Todo</option>
+                    <option value="3" selected>Este Año</option>
+                    <option value="4">Todo</option>
                     <option value="5">Rango</option>
                     <span class="icon-arrow-collapse-down"></span>
                 </select>
@@ -223,7 +288,7 @@
     <!--======================= FORM EDITAR INGRESO====================== -->
 
     <div class="modal noVisible" id="modal1">
-        <div class="modal-dialog noAnimacion" id="modal-dialog">
+        <div class="modal-dialog" id="modal-dialog">
             <header class="modal-header">
                 <h4 class="h4">Editar Ingreso</h4>
                 <button onclick="cerrarModal()" class="close-modal" id="btnClose">
@@ -341,52 +406,85 @@
 
 <!--======================= INICIO DE DATOS ====================== -->
 <div class="analytics">
-    <h2>Ingresos</h2>
+    <h2>Ingresos del mes <br><span id="total-mes">Resumen del mes</span></h2>
+
+    <!--======================= PORCENTAJES CIRCULARES ====================== -->
+
     <div class="item online">
-        <div class="icon">
-            <span class="icon-finance"></span>
+            
+        <div class="contenedor">
+            <div class="svg">
+              <svg width="80" height="80">
+                <circle r="32" cx="40" cy="40" class="progress2"></circle>
+                <circle r="32" cx="40" cy="40" class="progress" id="prog-efectivo"></circle>
+              </svg>
+            </div>
+      
+            <div class="box_percentage">
+              <p id="texto-prog-efectivo" class="percentage"></p>
+            </div>
         </div>
+
         <div class="right">
             <div class="info">
-                <h3>Hoy</h3>
-                <small class="text-muted">Sobre el total</small>
+                <h3>Efectivo</h3>
             </div>
             <div class="info2">
-                <h3>$523.000</h3>
-                <h3 class="success">2%</h3>
+                <h3 id="i-cont-mes" class="success">Calculando...</h3>
             </div>
         </div>
+
     </div>
     <div class="item offline">
-        <div class="icon">
-            <span class="icon-chart-timeline-variant-shimmer"></span>
+        <div class="contenedor">
+            <div class="svg">
+              <svg width="80" height="80">
+                <circle r="32" cx="40" cy="40" class="progress2"></circle>
+                <circle r="32" cx="40" cy="40" class="progress" id="prog-credito"></circle>
+              </svg>
+            </div>
+      
+            <div class="box_percentage">
+              <p id="texto-prog-credito" class="percentage"></p>
+            </div>
         </div>
+
         <div class="right">
             <div class="info">
-                <h3>7 Días</h3>
-                <small class="text-muted">Sobre el total</small>
+                <h3>Medios Electrónicos</h3>
             </div>
             <div class="info2">
-                <h3>$5.235.000</h3>
-                <h3 class="success">7%</h3>
+                <h3 id="i-elec-mes" class="primary">Calculando...</h3>
             </div>
         </div>
     </div>
+
     <div class="item online">
-        <div class="icon">
-            <span class="icon-chart-areaspline"></span>
+        <div class="contenedor">
+            <div class="svg">
+              <svg width="80" height="80">
+                <circle r="32" cx="40" cy="40" class="progress2"></circle>
+                <circle r="32" cx="40" cy="40" class="progress" id="prog-total"></circle>
+              </svg>
+            </div>
+      
+            <div class="box_percentage">
+              <p id="texto-prog-total" class="percentage"></p>
+            </div>
         </div>
+
         <div class="right">
             <div class="info">
-                <h3>30 Días</h3>
-                <small class="text-muted">Sobre el total</small>
+                <h3>Crédito</h3>
             </div>
             <div class="info2">
-                <h3>$23.515.000</h3>
-                <h3 class="success">20%</h3>
+                <h3 id="i-cred-mes" class="danger">Calculando...</h3>
             </div>
         </div>
     </div>
+    
+<!--======================= PORCENTAJES CIRCULARES ====================== -->
+
     <div class="item add-ingreso" onclick="toggleElement('a-ingreso')">
         <div>
             <span class="icon-plus"></span>
@@ -394,8 +492,12 @@
         </div>
     </div>
 </div>
+</div>
 
 </div>
-    </div>
+</div>
+
+<div id="snackbar">Registro guardado correctamente</div>
+
 </body>
 </html>
