@@ -1,108 +1,173 @@
 var bd, cuerpoTablaHTML, botonEnviar, solicitud, modalHTML, botonEditar, contIngresos = 0, totalIngresos = 0;
 var arrMenu = ["a-dashboard", "a-ingreso", "a-tabla-i", "a-gasto", "a-tabla-g", 
                 "a-clientes", "a-proveedores", "a-configuraciones", "a-usuarios"], activo = false;
-var dataRango = [], contIngresosGraf = 0, totalIngresosGraf = 0, iCursor = 0, meses = [], arrDatosMes = [], dataMes = [];
+var dataRango = [], contIngresosGraf = 0, totalIngresosGraf = 0, iCursor = 0, meses = [], 
+arrDatosMes = [], dataMes = [], refreshPercent =true, idVal = null;
+var miFecha = null, miYear = null, miFiltro = null, miIndex = null, mesNum = null, diaNum = null, deEsteMes = true, 
+fechaIng = Date.parse(new Date()), fechaItem;
     
 
 // Módulo principal----------------------------------------------
 window.addEventListener("load", iniciar);
 
-function iniciar() {
-    solicitud = indexedDB.open("hotelDB");
-    solicitud.addEventListener("error", mostrarError);
-    solicitud.addEventListener("upgradeneeded", crearTablas); 
-    solicitud.addEventListener("success", comenzar);  
+async function iniciar() {
+    await dbSetup();
+    await setTheme();
+    toggleElement("a-ingreso"); 
+    
+    document.getElementById("form-ingreso1").onsubmit = (e) => e.preventDefault();
+    document.getElementById("cerrar-sesion").onclick = () => cerrarSesion();
+    document.getElementById("theme-toggler").onclick = () => toggleDark();
 
-    const formIngreso = document.getElementById("form-ingreso1"); 
-    formIngreso.addEventListener("submit", (e)=>{e.preventDefault();});
-
-    const salir = document.getElementById("cerrar-sesion");
-    salir.addEventListener("click", cerrarSesion);
-
-    // cerrarSesion();
-    toggleElement("a-ingreso");
+    mostrar();
 }
 
 //================= Derivadas de "Iniciar()" =================
 
-function mostrarError(evento) {
-    alert("Error: " + evento.code + " " + evento.message);
-    }
+function dbSetup() {
+  return new Promise((resolve, reject) => {
 
-function comenzar(evento) {
-    bd = evento.target.result;
+		var solicitud = window.indexedDB.open("hotelDB");
 
-    var transaccion = bd.transaction(["darkMode"], "readwrite");
-    let almacen = transaccion.objectStore("darkMode");
-    var puntero = almacen.openCursor(null, "prev");
-    puntero.addEventListener("success", setTheme);
+		  solicitud.onupgradeneeded = (evento) => {
+			var baseDeDatos = evento.target.result;
 
-    // nuevoChart();
+			var baseDeDatos = evento.target.result;
+      var tabIngresos = baseDeDatos.createObjectStore("tabIngresos", {keyPath: "id", autoIncrement: true});
+      tabIngresos.createIndex("porFecha", "fecha", {unique: false});
+      tabIngresos.createIndex("porYear", "year", {unique: false});
+      tabIngresos.createIndex("porMes", "mes", {unique: false});
+      tabIngresos.createIndex("porDia", "dia", {unique: false});
+      tabIngresos.createIndex("porHora", "hora", {unique: false});
+      tabIngresos.createIndex("porTimeStamp", "timeStamp", {unique: false});
+      tabIngresos.createIndex("porHabitacion", "habitacion", {unique: false});
+      tabIngresos.createIndex("porDetalle", "detalle", {unique: false});
+      tabIngresos.createIndex("porServicio", "servicio", {unique: false});
+      tabIngresos.createIndex("porCantidad", "cantidad", {unique: false});
+      tabIngresos.createIndex("porPrecioUnitario", "precioUnitario", {unique: false});
+      tabIngresos.createIndex("porPrecioUnitario2", "precioUnitario2", {unique: false});
+      tabIngresos.createIndex("porTipoPago", "tipoPago", {unique: false});
+      tabIngresos.createIndex("porEncargado", "encargado", {unique: false});
+      tabIngresos.createIndex("porSubTotal", "subTotal", {unique: false});
+      tabIngresos.createIndex("porSubTotal2", "subTotal2", {unique: false});
+      tabIngresos.createIndex("porObservaciones", "observaciones", {unique: false});
+
+    
+      var darkMode = baseDeDatos.createObjectStore("darkMode", {keyPath: "id", autoIncrement: false});
+      darkMode.createIndex("theme", "theme", {unique: true});
+		};
+
+		solicitud.onsuccess = (evento) => {
+			bd = evento.target.result;
+			resolve();
+		};
+
+		solicitud.onerror = (evento) => {
+      alert("Error: " + evento.code + " " + evento.message);
+			reject(eevento);
+		};
+
+	});
+
 }
 
-function setTheme(evento){
+function setTheme(){
+  return new Promise(function(resolve, reject) {
+    var transaccion = bd.transaction(["darkMode"], "readwrite");
+    let almacen =  transaccion.objectStore("darkMode");
+    almacen.openCursor(null, "prev").onsuccess = (evento) =>{
+
     let puntero = evento.target.result;
     let id = 1;
     let theme = false;
     if(puntero){
-        let transaccion2 = bd.transaction(["darkMode"]);
-        let almacen2 = transaccion2.objectStore("darkMode");
-        let solicitud = almacen2.get(1);
+          let modo = puntero.value.theme;
+          let modoOn = (modo == true) ? "dark-theme-variables" : null;
+          document.body.classList.add(`${modoOn}`);
+          if (document.body.classList.contains("dark-theme-variables")){
+              document.getElementById("sun").classList.remove("active");
+              document.getElementById("moon").classList.add("active");
+          }
+          else{
+              document.getElementById("sun").classList.add("active");
+              document.getElementById("moon").classList.remove("active");
+          }
+          resolve();
 
-        solicitud.addEventListener("success", loadTheme);
         }else{
         let transaccion = bd.transaction(["darkMode"], "readwrite");
         let almacen = transaccion.objectStore("darkMode");
         almacen.put({id, theme}); 
+        resolve();
+        }
+    }
+  });
+}
+
+function toggleElement(idElement){ //===== on/off la clase active elementos del menu ====// 
+    for (let i=0; i<arrMenu.length; i++){ //===== Oculta el resto de secciones ====//
+        if (idElement == arrMenu[i]){
+            document.getElementById(idElement).classList.add("active");
+            document.querySelector(`.${arrMenu[i]}`).style.display = "grid";
+            document.querySelector(`.${idElement}`).classList.add("animation");
+
+            if (idElement == "a-dashboard"){
+              mostrarGrafico();
+            }
+
+        } else{
+            document.getElementById(arrMenu[i]).classList.remove("active");
+            document.getElementById(`${arrMenu[i]}id`).style.display = "none";
+        }
+    }
+    if (document.querySelector(".a-tabla-i").style.display == "grid"){
+        document.getElementById("searchBox").addEventListener("keyup", e => {if (e.key == "Enter"){ buscar("buscar-i");}});
     }
 }
 
-function loadTheme(evento) {
+function mostrar() {
 
-        let modo = evento.target.result.theme;
-        let modoOn = (modo == true) ? "dark-theme-variables" : null;
-        document.body.classList.add(`${modoOn}`);
-        if (document.body.classList.contains("dark-theme-variables")){
-            document.getElementById("sun").classList.remove("active");
-            document.getElementById("moon").classList.add("active");
-        }
-        else{
-            document.getElementById("sun").classList.add("active");
-            document.getElementById("moon").classList.remove("active");
-        }
-
-     mostrar(); 
-     
-// porcentajes("prog-efectivo", 63, 1);
-// porcentajes("prog-credito", 37, 2);
-// porcentajes("prog-total", 100, 3);
-
-}
-
-function crearTablas(evento) {
-    var baseDeDatos = evento.target.result;
-    var tabIngresos = baseDeDatos.createObjectStore("tabIngresos", {keyPath: "id", autoIncrement: true});
-    tabIngresos.createIndex("porFecha", "fecha", {unique: false});
-    tabIngresos.createIndex("porYear", "year", {unique: false});
-    tabIngresos.createIndex("porMes", "mes", {unique: false});
-    tabIngresos.createIndex("porDia", "dia", {unique: false});
-    tabIngresos.createIndex("porHora", "hora", {unique: false});
-    tabIngresos.createIndex("porTimeStamp", "timeStamp", {unique: false});
-    tabIngresos.createIndex("porHabitacion", "habitacion", {unique: false});
-    tabIngresos.createIndex("porDetalle", "detalle", {unique: false});
-    tabIngresos.createIndex("porServicio", "servicio", {unique: false});
-    tabIngresos.createIndex("porCantidad", "cantidad", {unique: false});
-    tabIngresos.createIndex("porPrecioUnitario", "precioUnitario", {unique: false});
-    tabIngresos.createIndex("porPrecioUnitario2", "precioUnitario2", {unique: false});
-    tabIngresos.createIndex("porTipoPago", "tipoPago", {unique: false});
-    tabIngresos.createIndex("porEncargado", "encargado", {unique: false});
-    tabIngresos.createIndex("porSubTotal", "subTotal", {unique: false});
-    tabIngresos.createIndex("porSubTotal2", "subTotal2", {unique: false});
-    tabIngresos.createIndex("porObservaciones", "observaciones", {unique: false});
-
+    // document.getElementById("form-ingreso1").reset();
     
-    var darkMode = baseDeDatos.createObjectStore("darkMode", {keyPath: "id", autoIncrement: false});
-    darkMode.createIndex("theme", "theme", {unique: true});
+    miFecha = new Date();
+    miYear = miFecha.getFullYear();
+    mesNum = (miFecha.getMonth() < 9) ? `0${miFecha.getMonth()+1}` : `${miFecha.getMonth()+1}`;
+    diaNum = (miFecha.getDate() < 10) ? `0${miFecha.getDate()}` : `${miFecha.getDate()}`;
+    miYearCadena = `${miYear}-01-01T00:00:00`;
+    miMesCadena = `${miYear}-${mesNum}-01T00:00:00`;
+    miHoyCadena = `${miYear}-${mesNum}-${diaNum}T00:00:00`;
+    let tsMes = Date.parse(miMesCadena);
+    miIndex = "porTimeStamp";
+    let opciones = parseInt(document.getElementById("lista-rango-i").value);
+    let arrDesde = [miHoyCadena, miMesCadena, miYearCadena, 0];
+
+    if (opciones !== 5) {
+      let inicioI = Date.parse(arrDesde[opciones - 1]);
+      let finI = Date.parse(new Date());
+      let rangoI = IDBKeyRange.bound(inicioI, finI);
+      miFiltro = rangoI;
+
+      if (opciones == 3 && (fechaIng >= tsMes)) {
+        refreshPercent = true;
+      } else {
+        refreshPercent = false;
+      }
+
+      toggleRango();
+      buscarIndice(miIndex, miFiltro, opciones);
+    } else {
+      toggleRango(true);
+      resetTableI();
+      document.getElementById("total-registros2").innerText = 0;
+      document.getElementById("total-ingresos2").innerText = moneda("0");
+
+      document
+        .getElementById("fecha-inicio-i")
+        .addEventListener("input", buscarRango);
+      document
+        .getElementById("fecha-fin-i")
+        .addEventListener("input", buscarRango);
+    }                           
 }
 
 //================= Funciones utilitarias =================
@@ -123,8 +188,7 @@ function subTotal(fin){
     }
 }    
 
-function nuevoIngreso(fin, id1=""){
-    console.log("hola");
+async function nuevoIngreso(fin, id1=""){
     let id = id1;
     let fecha = document.getElementById(`fecha-ingreso${fin}`).value;
     let fechaCadena = fecha+"T00:00:00";
@@ -147,58 +211,25 @@ function nuevoIngreso(fin, id1=""){
     let encargado = document.getElementById(`lista-encargados${fin}`).value;
     let subTotal = cantidad*precioUnitario;
     let subTotal2 = document.getElementById(`txt-subtotal${fin}`).value;
-    // let observaciones = document.getElementById(`observaciones${fin}`).value.toLowerCase();
-    
+
     var transaccion = bd.transaction(["tabIngresos"], "readwrite");
-    var almacen = transaccion.objectStore("tabIngresos");
+    var almacen = await transaccion.objectStore("tabIngresos");
     if (id == "") {
-        almacen.put({fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
+        fechaIng = null;
+        fechaIng = timeStamp;
+        await almacen.put({fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
     }else{
-        almacen.put({id, fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
+        await almacen.put({id, fecha, year, mes, nombreMes, dia, hora, timeStamp, habitacion, detalle, servicio, cantidad, 
         precioUnitario, precioUnitario2, tipoPago, encargado, subTotal, subTotal2});
         }
 
         showSnackbar();
     if (fin == 2){
         cerrarModal();
-    }else{};
+    }
+
     mostrar();
-}
-
-function mostrar() {
-    var miFecha = null, miYear = null, miFiltro = null, miIndex = null, mesNum = null, diaNum = null;
-    
-    // document.getElementById("form-ingreso1").reset();
-
-    miFecha = new Date();
-    miYear = miFecha.getFullYear();
-    mesNum = (miFecha.getMonth() < 9) ? `0${miFecha.getMonth()+1}` : `${miFecha.getMonth()+1}`;
-    diaNum = (miFecha.getDate() < 10) ? `0${miFecha.getDate()}` : `${miFecha.getDate()}`;
-    miYearCadena = `${miYear}-01-01T00:00:00`;
-    miMesCadena = `${miYear}-${mesNum}-01T00:00:00`;
-    miHoyCadena = `${miYear}-${mesNum}-${diaNum}T00:00:00`;
-    // console.log(diaNum);
-    miIndex = "porTimeStamp";
-    let opciones = parseInt(document.getElementById("lista-rango-i").value);
-    let arrDesde = [miHoyCadena, miMesCadena, miYearCadena, 0];
-
-    if (opciones !== 5){
-        let inicioI = Date.parse(arrDesde[opciones-1]);
-        let finI = Date.parse(new Date);
-        let rangoI = IDBKeyRange.bound(inicioI, finI);
-        miFiltro = rangoI;
-        toggleRango();
-        buscarIndice(miIndex, miFiltro, opciones);
-    } else{
-        toggleRango(true);
-        resetTableI();
-        document.getElementById("total-registros2").innerText = 0;
-        document.getElementById("total-ingresos2").innerText = moneda("0");
-
-        document.getElementById("fecha-inicio-i").addEventListener("input", buscarRango);
-        document.getElementById("fecha-fin-i").addEventListener("input", buscarRango);
-    }                           
 }
 
 function mostrarGrafico() {
@@ -213,7 +244,6 @@ function mostrarGrafico() {
     miYearCadena = `${miYear}-01-01T00:00:00`;
     miMesCadena = `${miYear}-${mesNum}-01T00:00:00`;
     miHoyCadena = `${miYear}-${mesNum}-${diaNum}T00:00:00`;
-    // console.log(diaNum);
     miIndex = "porTimeStamp";
     let opciones = parseInt(document.getElementById("lista-graf-i").value);
     let arrDesde = [miHoyCadena, miMesCadena, miYearCadena, 0];
@@ -230,7 +260,7 @@ function mostrarGrafico() {
     }            
 }
 
-function toggleRango(value = false){
+function toggleRango(value = false){//completada ok
     if (value){
         document.getElementById("label-inicio-i").classList.remove("disabled");
         document.getElementById("label-fin-i").classList.remove("disabled");
@@ -273,19 +303,59 @@ function buscarRango(){
         }
 }
 
-async function buscarIndice(indice, filtro, op){
-    resetTableI();
-    var transaccion = bd.transaction(["tabIngresos"]);
-    var almacen = transaccion.objectStore("tabIngresos");
+async function buscarIndice(indice, filtro) {
+  resetTableI();
+  var transaccion = bd.transaction(["tabIngresos"]);
+  var almacen = transaccion.objectStore("tabIngresos");
 
-    theIndex = almacen.index(indice);
-    var request = await theIndex.openCursor(filtro, "prev");
-    request.addEventListener("success", (evento) => 
-        {
-          mostrarIngresos(evento, op)
+  theIndex = almacen.index(indice);
+  theIndex.openCursor(filtro, "prev").onsuccess = (evento) => {
+    var puntero = evento.target.result;
+    let options = { numberPerPage: 15, goBar: true, pageCounter: false },
+      filterOptions = { el: "#searchBox" };
+    // Desestructurar
+    if (puntero) {
+      contIngresos += 1;
+      let { id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
+        tipoPago, encargado, subTotal, subTotal2 } = puntero.value;
 
-        });
-    request.addEventListener("error", resetTableI);
+      cuerpoTablaHTML += `
+          <tr class="" id="${id}">
+              <td class="fecha" id="fe${id}">${fecha}</td>
+              <td class='centrar' id="ho${id}">${hora}</td>
+              <td class="centrar habitacion" id="ha${id}">${habitacion}</td>
+              <td class="servicio" id="se${id}">${servicio}</td>
+              <td class="detalle" id="de${id}">${detalle}</td>
+              <td class="cantidad" id="ca${id}">${cantidad}</td>
+              <td class="moneda" id="pr${id}" style="display: none">${precioUnitario}</td>
+              <td class="moneda" id="pr2${id}">${precioUnitario2}</td>
+              <td class="moneda" id="su${id}">${subTotal2}</td>
+              <td class="pago" id="ti${id}">${tipoPago}</td>
+              <td class="turno" id="en${id}">${encargado}</td>
+              <td class="btnFilas" onclick="showModal(${id})">
+              <span class="icon-pencil primary"></span></td>
+              <td class="btnFilas" onclick="eliminarIngreso(${id})">
+              <span class="icon-trash-can-outline danger"></span></td>
+          </tr>`;
+
+      totalIngresos += subTotal;
+      dataMes.push(puntero.value);
+
+      puntero.continue();
+    } else {
+      document.getElementById("cuerpoTabla").innerHTML = cuerpoTablaHTML;
+      paginate.init("#tab-ingresos", options, filterOptions);
+      document.getElementById("total-registros2").innerText = contIngresos;
+      document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
+      contIngresos = 0;
+      totalIngresos = 0;
+      cuerpoTablaHTML = "";
+      document.getElementById("searchBox").value = "";
+      buscarOff();
+      datosMes(dataMes);
+      dataMes = [];
+    }
+  };
 }
 
 async function buscarIndiceGraf(indice, filtro){
@@ -297,7 +367,7 @@ async function buscarIndiceGraf(indice, filtro){
     request.addEventListener("success", navegarCursor);
 }
 
-function resetTableI(){
+function resetTableI(){//completada ok
     document.getElementById("borde-tabla").innerHTML = `
     <table id="tab-ingresos" class="">
     <thead id = "head-i">
@@ -324,56 +394,6 @@ function resetTableI(){
     document.getElementById("cuerpoTabla").innerHTML = "";
 }
 
-function mostrarIngresos(evento, op) {
-    var puntero = evento.target.result;
-    let options = {numberPerPage:15, goBar:true, pageCounter:false}, filterOptions = {el:"#searchBox"};
-    // Desestructurar 
-    if (puntero) { 
-        // console.log(puntero.value);
-        contIngresos += 1;
-        let {id, fecha, hora, habitacion, servicio, detalle, cantidad, precioUnitario, precioUnitario2,
-            tipoPago, encargado, subTotal, subTotal2} = puntero.value;
-
-        cuerpoTablaHTML += `
-            <tr class="" id="${id}">
-                <td class="fecha" id="fe${id}">${fecha}</td>
-                <td class='centrar' id="ho${id}">${hora}</td>
-                <td class="centrar habitacion" id="ha${id}">${habitacion}</td>
-                <td class="servicio" id="se${id}">${servicio}</td>
-                <td class="detalle" id="de${id}">${detalle}</td>
-                <td class="cantidad" id="ca${id}">${cantidad}</td>
-                <td class="moneda" id="pr${id}" style="display: none">${precioUnitario}</td>
-                <td class="moneda" id="pr2${id}">${precioUnitario2}</td>
-                <td class="moneda" id="su${id}">${subTotal2}</td>
-                <td class="pago" id="ti${id}">${tipoPago}</td>
-                <td class="turno" id="en${id}">${encargado}</td>
-                <td class="btnFilas" onclick="showModal(${id})">
-                <span class="icon-pencil primary"></span></td>
-                <td class="btnFilas" onclick="eliminarIngreso(${id})">
-                <span class="icon-trash-can-outline danger"></span></td>
-            </tr>`;
-
-        totalIngresos += subTotal;
-        dataMes.push(puntero.value);
-        
-        puntero.continue();
-        
-        }
-        else {
-            document.getElementById("cuerpoTabla").innerHTML = cuerpoTablaHTML;
-            paginate.init("#tab-ingresos", options, filterOptions); 
-            document.getElementById("total-registros2").innerText = contIngresos;
-            document.getElementById("total-ingresos2").innerText = moneda(totalIngresos);
-            contIngresos = 0;
-            totalIngresos = 0;
-            cuerpoTablaHTML = "";
-            document.getElementById("searchBox").value = "";
-            buscarOff();
-            datosMes(dataMes, op);
-            dataMes = [];
-        }
-}
-
 function navegarCursor(evento) {
     var puntero = evento.target.result;
     // Desestructurar 
@@ -386,16 +406,40 @@ function navegarCursor(evento) {
         }
 }
 
-function eliminarIngreso(id) {
-    if (confirm("Está seguro de eliminar este registro?")){
-    var transaccion = bd.transaction(["tabIngresos"], "readwrite");
-    var almacen = transaccion.objectStore("tabIngresos");
-    almacen.delete(id);
+async function eliminarIngreso(id) {//completada ok---- Solicita confirmacion
+  if (confirm("Está seguro de eliminar este registro?")) {
+    fechaIng = await getRegistro(id);
+    await eliminarRegistro(id);
     mostrar();
-    }else{return};
+  } else {
+    return;
+  }
 }
 
-function showModal(id){
+const getRegistro = (id) => {//Obtiene la fecha del item antes de que se elimine
+  return new Promise((resolve, reject) => {
+    var transaccion = bd.transaction(["tabIngresos"], "readwrite");
+    var almacen = transaccion.objectStore("tabIngresos");
+    almacen.get(id).onsuccess = (evento) => {
+			itemElim = evento.target.result;
+      fechaItem = null;
+      idVal = itemElim.id;
+      resolve(fechaItem = itemElim.timeStamp);
+    }
+  });
+}
+
+const eliminarRegistro = (id) => {//Elimina el item
+  return new Promise((resolve, reject) => {
+    var transaccion = bd.transaction(["tabIngresos"], "readwrite");
+    var almacen = transaccion.objectStore("tabIngresos");
+    almacen.delete(id).onsuccess = (evento) => {
+    resolve();
+    }
+  });
+}
+
+function showModal(id){//completada ok
     modalHTML = `<button  class="btn-form" id="btn-editar" onclick="editarIngreso(${id})">Editar</button>`;
     document.getElementById("div-btn").innerHTML = modalHTML;   
 
@@ -409,7 +453,6 @@ function showModal(id){
     let pago =  document.querySelector(`#ti${id}`).innerHTML;
     let encargado =  document.querySelector(`#en${id}`).innerHTML;
     let subtotal =  document.querySelector(`#su${id}`).innerHTML;
-    // let observaciones =  document.querySelector(`#ob${id}`).innerHTML;
 
     document.getElementById("modal1").classList.add("isVisible");
     document.getElementById("modal-dialog").classList.add("animation");
@@ -427,19 +470,20 @@ function showModal(id){
     document.getElementById("lista-encargados2").value = encargado;
     document.getElementById("txt-subtotal2").value = subtotal;
     // document.getElementById("observaciones2").value = observaciones;
-
+    let fechaCad = fecha+"T00:00:00";
+    fechaIng = Date.parse(fechaCad);
+    
     document.addEventListener("keyup", e => {if (e.key == "Escape"){ cerrarModal();}});
 }
 
-function editarIngreso(id2) {
+async function editarIngreso(id2) {//completada ok
     formu2 = document.getElementById("form-editar");
-    formu2.addEventListener("submit", (e) => {
-    e.preventDefault();
-    });
+    formu2.onsubmit =  (e) => e.preventDefault();
     validarForm(".validar-edit-i", 2, id2);
 }
 
-function validarForm(tag, fin, id2){
+function validarForm(tag, fin, id2){//completada ok
+    idVal = id2;
     let inputs = document.querySelectorAll(tag);
     let validar = 0;
     inputs.forEach(element => {
@@ -453,14 +497,14 @@ function validarForm(tag, fin, id2){
     }
 }
 
-function cerrarModal(){
+function cerrarModal(){//completada ok
     document.getElementById("modal-dialog").classList.remove("animation");
     document.getElementById("modal1").classList.remove("isVisible");
     document.getElementById("modal-dialog").classList.add("noAnimation");
     document.getElementById("modal1").classList.add("noVisible");
 }
 
-function cerrarSesion(){ //======== Oculta todas las secciones dentro de MAIN ======//
+function cerrarSesion(){ //======== Oculta todas las secciones dentro de MAIN ?????????======//
     for (let i=0; i<arrMenu.length; i++){
             document.getElementById(`${arrMenu[i]}id`).style.display = "none";
     }
@@ -468,28 +512,8 @@ function cerrarSesion(){ //======== Oculta todas las secciones dentro de MAIN ==
     document.getElementById("cerrar-sesion").classList.remove("active");
 }
 
-function toggleElement(idElement){ //===== on/off la clase active elementos del menu ====// 
-    for (let i=0; i<arrMenu.length; i++){ //===== Oculta el reto de secciones ====//
-        if (idElement == arrMenu[i]){
-            document.getElementById(idElement).classList.add("active");
-            document.querySelector(`.${arrMenu[i]}`).style.display = "grid";
-            document.querySelector(`.${idElement}`).classList.add("animation");
-
-            if (idElement == "a-dashboard"){
-              mostrarGrafico();
-            }
-
-        } else{
-            document.getElementById(arrMenu[i]).classList.remove("active");
-            document.getElementById(`${arrMenu[i]}id`).style.display = "none";
-        }
-    }
-    if (document.querySelector(".a-tabla-i").style.display == "grid"){
-        document.getElementById("searchBox").addEventListener("keyup", e => {if (e.key == "Enter"){ buscar("buscar-i");}});
-    }
-}
-
-function toggleDark(){
+function toggleDark(){ //completada ok
+  return new Promise((resolve, reject) => {
 
     document.getElementById("sun").classList.toggle("active");
     document.getElementById("moon").classList.toggle("active");
@@ -508,6 +532,8 @@ function toggleDark(){
         let theme = false;
         almacen.put({id, theme});
     }
+    resolve();
+  });
     
     
 }
@@ -562,7 +588,7 @@ function moneda(valor){ //Convierte números enteros en cadena de texto con form
         }  
 }
 
-function buscar(id){
+function buscar(id){//completada ok
     if(id=="buscar-i"){
         if(document.getElementById("searchBox").value.trim() !== ""){
             paginate.filter();
@@ -581,7 +607,7 @@ function buscar(id){
     }
 }
 
-function buscarOff(){
+function buscarOff(){//completada ok
     if(document.getElementById("searchBox").value.trim() == ""){
         paginate.filter();
         document.getElementById("cerrar-buscar-i").style.display = "none";
@@ -590,7 +616,7 @@ function buscarOff(){
     }
 }
 
-async function nuevoChart(datos) {
+function nuevoChart(datos) {
   let arrColorLight = ["#111111", "#d3d3d4"];
   let arrColorDark = ["#f7f7f7", "#40414b"];
   let condicion = body.classList.contains("dark-theme-variables")
@@ -648,7 +674,7 @@ async function nuevoChart(datos) {
   let turno2 = subTotalTurno[1];
 
   var ctx1 = document.getElementById("chartResumen").getContext("2d");
-  await new Chart(ctx1, {
+  new Chart(ctx1, {
     type: "line",
     data: {
       labels: meses,
@@ -691,7 +717,7 @@ async function nuevoChart(datos) {
   });
 
   var ctx = document.getElementById("chartInGastos").getContext("2d");
-  await new Chart(ctx, {
+  new Chart(ctx, {
     type: "bar",
     data: {
       labels: meses,
@@ -717,7 +743,7 @@ async function nuevoChart(datos) {
   });
 
   var ctx2 = document.getElementById("chartPago").getContext("2d");
-  await new Chart(ctx2, {
+  new Chart(ctx2, {
     type: "doughnut",
     data: {
       datasets: [
@@ -739,7 +765,7 @@ async function nuevoChart(datos) {
   });
 
   var ctx4 = document.getElementById("chartServicio").getContext("2d");
-  await new Chart(ctx4, {
+  new Chart(ctx4, {
     type: "doughnut",
     data: {
       datasets: [
@@ -761,7 +787,7 @@ async function nuevoChart(datos) {
   });
 
   var ctx5 = document.getElementById("chartTurno").getContext("2d");
-  await new Chart(ctx5, {
+  new Chart(ctx5, {
     type: "bar",
     data: {
       labels: [moneda(turno1), moneda(turno2)],
@@ -797,34 +823,22 @@ const ebableEventHandlers = () => {
 
 }
 
-const colorsChart = (opacidad) => {
-  const arrColores = [
-    "#4775f7",
-    "#048f42",
-    "#fc3a4a",
-    "#bc28f7",
-    "#70ee3e",
-    "#f8454e",
-  ];
+const colorsChart = (opacidad) => {//completada ok
+  const arrColores = ["#4775f7", "#048f42", "#fc3a4a", "#bc28f7", "#70ee3e", "#f8454e"];
   return arrColores.map((color) => (opacidad ? `${color}${opacidad}` : color));
 };
 
 // ========PORCENTAJES CIRCULARES===============
 
-function porcentajes(id, porcentaje, num) {
+function porcentajes(id, porcentaje, num) {//Graficos circulares - Ingresos del mes por tipo de pago
   let circulo = document.getElementById(id);
   let percentage = document.getElementById(`texto-${id}`);
   let cantidad = 0;
   let radio = 2 * Math.PI * circulo.r.baseVal.value;
   let descuento = radio / 100;
-  let arrColor = [
-    "var(--color-success)",
-    "var(--primaryColor)",
-    "var(--color-danger)",
-  ];
+  let arrColor = ["var(--color-success)", "var(--primaryColor)", "var(--color-danger)"];
   circulo.style.strokeDasharray = radio;
   circulo.style.stroke = arrColor[num - 1];
-  // console.log(radio);
 
   let tiempo = setInterval(() => {
     cantidad += 1;
@@ -838,9 +852,10 @@ function porcentajes(id, porcentaje, num) {
   }, 10);
 }
 
-function datosMes(datos, op) {
-  if (op !== 3 || activo === true) {
-    return;
+function datosMes(datos) {//Funciona
+  aTabla = document.getElementById("a-tabla-i");
+  if (!refreshPercent) {
+    return;//Evita recargar los datos cuando no es necesario
   } else {
     let meses = [...new Set(datos.map((data) => data.nombreMes))];
 
@@ -875,26 +890,24 @@ function datosMes(datos, op) {
 
     let totalCredito = arrCredito.reduce((acc, el) => acc + el, 0);
     let porcentaje3 = parseFloat(((totalCredito / totalmes) * 100).toFixed(1));
+    if ((porcentaje1 + porcentaje2 + porcentaje3) > 100.00) {
+      porcentaje3 = (porcentaje3 - 0.1).toFixed(1);
+    } else if ((porcentaje1 + porcentaje2 + porcentaje3) < 100.00) {
+      porcentaje3 = (porcentaje3 + 0.1).toFixed(1);
+    }
 
     document.getElementById("total-mes").innerText = moneda(totalmes);
     document.getElementById("i-cont-mes").innerText = moneda(totalEfectivo);
     document.getElementById("i-elec-mes").innerText = moneda(totalElectronico);
     document.getElementById("i-cred-mes").innerText = moneda(totalCredito);
 
-    console.log(totalmes);
-    console.log(totalEfectivo);
-    console.log(totalElectronico);
-    console.log(totalCredito);
-
     porcentajes("prog-efectivo", porcentaje1, 1);
     porcentajes("prog-credito", porcentaje2, 2);
     porcentajes("prog-total", porcentaje3, 3);
-
-    let = activo = true;
   }
 }
 
-function showSnackbar() {
+function showSnackbar() {//completada ok
   var snackBar = 
     document.getElementById("snackbar")
   // Dynamically Appending class
@@ -902,11 +915,7 @@ function showSnackbar() {
   snackBar.className = "show-bar";
 
   setTimeout(function () {
-     // Dynamically Removing the Class 
-     // from HTML element
-     // By Replacing it with an Empty
-     // String after 5 seconds
      snackBar.className = 
         snackBar.className.replace("show-bar", ""); 
-  }, 3000);
+  }, 2000);
 }

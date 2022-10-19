@@ -1408,7 +1408,7 @@ div.paginate input[type='button'].ir{
      accordance to Total Time */
   /* In case, Time = 3s, 
      fadeout 0.5s 2.5s */
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 1.5s;
 }
 
 /* when the Snackbar Appears */
