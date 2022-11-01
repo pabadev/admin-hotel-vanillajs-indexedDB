@@ -1236,6 +1236,10 @@ main .a-configuraciones .rejilla .icon:hover{
   background-color: var(--color-light);
 }
 
+body.dark-theme-variables main .a-configuraciones .rejilla .icon span{
+  color: #88a5f5;
+}
+
 main .a-configuraciones .rejilla .icon span{
   padding: 0;
   margin: 0;
@@ -1250,11 +1254,13 @@ main .a-configuraciones .rejilla .icon span{
   transition: all 300ms ease;
 }
 
-/* main .a-configuraciones .rejilla .icon span:hover{
-  color: var(--color-success);
-} */
 main .a-configuraciones .rejilla .icon:hover *{
-  color: var(--color-success);
+  color: var(--color-dark);
+  transition: all 300ms ease;
+}
+
+body.dark-theme-variables main .a-configuraciones .rejilla .icon:hover *{
+  color: var(--color-dark);
   transition: all 300ms ease;
 }
 
@@ -1286,16 +1292,29 @@ main .a-configuraciones .areaFile{
 }
 
 main .a-configuraciones .areaFile h2{ 
-  margin-top: -50px;
+  margin-top: -5px;
   margin-bottom: 50px;
 }
 
 main .a-configuraciones .areaFile .botonFile{ 
   background-color: var(--primaryColor);
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  margin-bottom: 55px;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#boton-cancel-import{
+  background-color: var(--color-danger);
+  /* margin-top: 3rem; */
   padding: 0.5rem 1rem 0.5rem 1rem;
   border-radius: 0.5rem;
   color: white;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
 }
 

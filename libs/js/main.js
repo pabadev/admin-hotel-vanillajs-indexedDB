@@ -639,7 +639,8 @@ function toggleDark() { //completada ok == Cambia el tema de color
       let theme = false;
       almacen.put({ id, theme });
     }
-    if (document.getElementById("a-dashboard").classList.contains("active")){
+    if (chartExiste){
+    // if (document.getElementById("a-dashboard").classList.contains("active")){
       updateColorCharts();
     }
     resolve();
