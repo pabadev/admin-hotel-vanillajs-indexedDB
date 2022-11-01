@@ -194,8 +194,8 @@
             /** Estas variables deshabilitarán el botón "Prev" en la
              * primera página y el botón "siguiente" en la ultima
              **/
-            let	prevDisabled = (currentPage == 1)?"none":"";
-            let nextDisabled = (currentPage == numberOfPage)?"none":"";
+            let	prevDisabled = (currentPage == 1)?"hidden":"";
+            let nextDisabled = (currentPage == numberOfPage)?"hidden":"";
 
             /** Este (botones) creara todos los botones necesarios
              * creará cada botón y establece el atributo onclick
@@ -203,18 +203,18 @@
              *
              * Tambien se encarga de agregar el boton de "gotopage" y "pagecounter"
              **/
-            let buttons = `<div class='mover' style="display:${prevDisabled}"><span class='icon-arrow-left-thick' onclick='paginate.sort((${currentPage} - 1))'></span></div>`;
+            let buttons = `<div class='mover' style="visibility:${prevDisabled}"><span class='icon-arrow-left-thick' onclick='paginate.sort((${currentPage} - 1))'></span></div>`;
             let buttonNumberOfPage = "<input type='button' value='" + currentPage + ' - ' + numberOfPage + "' disabled>";
 
             for (let $i=1; $i<=numberOfPage;$i++){
-                if(numberOfPage > 10){
+                if(numberOfPage > 5){
                     buttons += paginationMoreThatTenPage($i,numberOfPage);
                 }else{
                     buttons += "<input type='button' id='id"+$i+"'value='"+$i+"' onclick='paginate.sort("+$i+")'>";
                 }
             }
 
-            let nextButton = `<div class='mover' style="display:${nextDisabled}"><span class='icon-arrow-right-thick mover2' onclick='paginate.sort((${currentPage} + 1))'></span></div>`;
+            let nextButton = `<div class='mover' style="visibility:${nextDisabled}"><span class='icon-arrow-right-thick mover2' onclick='paginate.sort((${currentPage} + 1))'></span></div>`;
             buttons +=  nextButton;
 
             if(settings.pageCounter)
@@ -238,12 +238,12 @@
         var paginationMoreThatTenPage = function(iterator,numberOfPage){
 
             let referenceForTheLast = numberOfPage - 1;
-            let middleValue = '... ';
+            let middleValue = '<span>...</span>';
 
             if(iterator > referenceForTheLast || iterator < 5){
                 return "<input type='button' id='id"+iterator+"'value='"+iterator+"' onclick='paginate.sort("+iterator+")'>";
             }else if((iterator + 1) == numberOfPage) {
-                return middleValue + "<input type='button' id='id"+iterator+"'value='"+iterator+"' style='display: none' onclick='paginate.sort("+iterator+")'>";
+                return middleValue + "<input type='button' class='nextMiddle' id='id"+iterator+"'value='"+iterator+"' style='display: none' onclick='paginate.sort("+iterator+")'>";
             }else {
                 return "<input type='button' id='id"+iterator+"'value='"+iterator+"' style='display: none' onclick='paginate.sort("+iterator+")'>";
             }

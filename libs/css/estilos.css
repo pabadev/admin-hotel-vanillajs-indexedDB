@@ -253,6 +253,7 @@
     --white: #fff;
     --black: rgba(0, 0, 0, 0.8);
     --progress: rgba(38, 39, 46, 0.3);
+    --scrollBack: #c2c3c5;
     --bounceEasing: cubic-bezier(0.51, 0.92, 0.24, 1.15);
 }
 .dark-theme-variables{
@@ -265,6 +266,7 @@
   --box-shadow2: 0 1.5rem 2rem rgba(64, 86, 209, 0.2);
   --gray: #575656;
   --progress: rgba(194, 195, 197, 0.9);
+  --scrollBack: rgb(55, 58, 63);
   --white: rgb(22, 22, 22);
   --fondo-chart: #2c3135;
 }
@@ -295,6 +297,20 @@ body{
     overflow-y: auto;
     color: var(--color-dark);
     transition: all 300ms ease;
+}
+
+body::-webkit-scrollbar {
+  width: 20px;              
+}
+
+body::-webkit-scrollbar-track {
+  background: #c2c3c5;      
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #677483;    
+  border-radius: 20px;    
+  border: 5px solid #c2c3c5; 
 }
 
 .container{
@@ -888,6 +904,10 @@ main .a-dashboard .graficos:last-child{
   text-align: center;
   align-items: center;
   padding-bottom: 2px;
+  /* background-color: var(--color-light); */
+  height: 95%;
+  margin-left: 10px;
+  letter-spacing: 1px;
 }
 
 .total-registros{
@@ -1112,13 +1132,18 @@ div.paginate input[type='button'].active{
     background-color: var(--primaryColor);
     color: var(--white);
     font-weight: bold;
-    margin: 0px 10px 0px 10px;
+    /* margin: 0px 5px 0px 5px; */
 }
 div.paginate input[type='button']:disabled{
     color: var(--gray)!important;
     cursor: default;
     margin-right: 10px;
     margin-left: 10px;
+}
+
+div.paginate span{
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 div.paginate .mover:hover{
@@ -1164,6 +1189,119 @@ div.paginate input[type='button'].ir{
   border-radius: 6px;
 }
 
+/*====== MENU CONFIGURACIONES ======*/
+
+main .a-configuraciones {
+  margin: 0 auto 0 auto;
+  display: grid;
+  align-content: center;
+  min-height: 97%;
+  max-width: 98%;
+}
+
+main .a-configuraciones .rejilla{
+  margin: 0 auto 0 auto;
+  padding: var(--card-padding);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: flex-start;
+  justify-content: space-evenly;
+  justify-items: center;
+  gap: 3rem;
+  height: 350px;
+  /* height: max-content; */
+  min-width: 550px;
+  max-width: 550px;
+  border: 1px solid var(--primaryColor);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  /* background-color: #049646; */
+}
+
+main .a-configuraciones .rejilla .icon{
+  /* background-color: #1d52e4; */
+  display: grid;
+  justify-content: center;
+  height: max-content;
+  width: 130px;
+  box-shadow: var(--box-shadow2);
+  transition: all 300ms ease;
+  border-radius: var(--card-border-radius);
+  padding: 1rem;
+  cursor: pointer;
+}
+
+main .a-configuraciones .rejilla .icon:hover{
+  box-shadow: none;
+  background-color: var(--color-light);
+}
+
+main .a-configuraciones .rejilla .icon span{
+  padding: 0;
+  margin: 0;
+  /* background-color: #66e41d; */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 3.8rem;
+  height: 4rem;
+  color: var(--primaryColor);
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+
+/* main .a-configuraciones .rejilla .icon span:hover{
+  color: var(--color-success);
+} */
+main .a-configuraciones .rejilla .icon:hover *{
+  color: var(--color-success);
+  transition: all 300ms ease;
+}
+
+main .a-configuraciones .rejilla .icon h4{
+  display: flex;
+  padding: 0;
+  margin: 0;
+  /* background-color: #e41d8a; */
+  justify-content: center;
+  align-items: flex-end;
+  height: 20px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+main .a-configuraciones .areaFile{
+  margin: 0 auto 0 auto;
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+  gap: 1rem;
+  height: 350px;
+  min-width: 550px;
+  max-width: 550px;
+  border: 2px dashed var(--primaryColor);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+main .a-configuraciones .areaFile h2{ 
+  margin-top: -50px;
+  margin-bottom: 50px;
+}
+
+main .a-configuraciones .areaFile .botonFile{ 
+  background-color: var(--primaryColor);
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/*======FIN DE  MENU CONFIGURACIONES ======*/
+
+
 /*====== RIGHT ======*/
 .right{
   margin-top: 0;
@@ -1181,7 +1319,7 @@ div.paginate input[type='button'].ir{
   display: none;
 }
 .right .theme-toggler{
-  background-color: var(--gray);
+  background-color: var(--progress);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1204,6 +1342,8 @@ div.paginate input[type='button'].ir{
   background-color: var(--primaryColor);
   color: white;
   border-radius: 50%;
+  width: 65%;
+  height: 110%;
   transition: all 300ms ease;
 }
 .right .top .profile{
@@ -1366,9 +1506,6 @@ div.paginate input[type='button'].ir{
   fill: none;
   stroke-width: 10;
   stroke: var(--color-success);
-  /* stroke: var(--color-danger); */
-  /* stroke: var(--primaryColor); */
-  /* stroke: var(--progress); */
   transform: rotate(-90deg);
   transform-origin: center;
   stroke-linecap: round;
@@ -1376,28 +1513,53 @@ div.paginate input[type='button'].ir{
   stroke-dashoffset: 201;
   transition: .3s;
 }
+
+.progress-linea {
+  stroke-width: 14;
+  stroke: var(--progress);
+  stroke-linecap: round;
+}
+
+.progress-linea2 {
+  stroke-width: 9;
+  stroke: var(--color-success);
+  stroke-linecap: round;
+  stroke-dasharray: 490;
+  stroke-dashoffset: 490;
+  transition: .3s;
+}
+
+.porcentaje-import {
+  margin-top: -15px;
+}
+
+.porcentaje-import p {
+  color: var(--color-success);
+  font-size: 1rem;
+}
 /* ============   SnackBarr   ================= */
+
+#snackbarcont {
+  display: flex;
+  min-width: 100%;
+  justify-content: center;
+}
+
 #snackbar {
   /* By Default, Hidden */
   visibility: hidden; 
-  min-width: 250px;
-  background-color: #333;
+  min-width: 300px;
+  max-width: 350px;
+  background-color: rgb(73, 71, 71);
   color: #fff;
-  text-align: left;
-  border-radius: 0.3rem;
+  text-align: center;
+  border-radius: 0.6rem;
   padding: 16px;
-  /* To always Keep on 
-     Top of screen */
   position: fixed;
-
-  /* To be displayed above 
-     Parent HTML DOM element  */ 
   z-index: 1; 
-
-  /* Position Bottom Left 
-     Corner of Screen */
-  left: 40%;
   bottom: 30px;
+  margin-left: auto;
+  margin-top: auto;
 }
 
 /* Dynamically Appending this 

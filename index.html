@@ -8,6 +8,7 @@
     <link rel="icon" href="./libs/img/favicon-hotelplus.png" type="image/png" sizes="16x16">
     <script src="./libs/js/chart.js"></script>
     <script src="./libs/js/paginate.js"></script>
+    <script src="./libs/js/FileSaver.js"></script>
     <script src="./libs/js/main.js"></script>
 
     <title>Hotel Plus</title>
@@ -81,17 +82,17 @@
 <!--======================= CHART ====================== -->
     <div class="a-dashboard" id="a-dashboardid" style="display: none;">
         <div class="info-tabla-gral info-graf">
-            <h3 class="h3">Resumen de Ingresos</h3>
+            <h3 class="h3" onclick="updateColorCharts()">Resumen de Ingresos</h3>
             
             <div class="filtro-rangos info-tabla">
                 <label class="">Seleccionar Año:</label>
-                <select name="lista-rango-graf-i" id="lista-graf-i">
+                <select name="lista-rango-graf-i" id="lista-graf-i" onchange="mostrarGrafico()">
                     <option value="1">Hoy</option>
                     <option value="2">Este Mes</option>
                     <option value="3" selected>Este Año</option>
                     <option value="4">Todo</option>
                     <option value="5">Rango</option>
-                    <span class="icon-arrow-collapse-down"></span>
+                    <!-- <span class="icon-arrow-collapse-down"></span> -->
                 </select>
             </div>
         </div>
@@ -145,7 +146,55 @@
         <div class="a-tabla-g" id="a-tabla-gid" style="display: none;"></div>
         <div class="a-clientes"  id="a-clientesid" style="display: none;"></div>
         <div class="a-proveedores" id="a-proveedoresid" style="display: none;"></div>
-        <div class="a-configuraciones" id="a-configuracionesid" style="display: none;"></div>
+
+        <div class="a-configuraciones" id="a-configuracionesid" style="display: none;">
+            <div class="rejilla" id="rejilla">
+                <div class="icon" onclick="crearJson()">
+                    <span class="icono icon-database-arrow-down" id="exportar-bd"></span>
+                    <h4 class="descripcion">Exportar BD</h4>
+                </div>
+                <div class="icon" onclick="importarJson()">
+                    <span class="icono icon-database-arrow-up"></span>
+                    <h4 class="descripcion">Importar BD</h4>
+                </div>
+                <div class="icon">
+                    <span class="icono icon-lock"></span>
+                    <h4 class="descripcion">Seguridad</h4>
+                </div>
+                <div class="icon">
+                    <span class="icono icon-calendar-clock-outline"></span>
+                    <h4 class="descripcion">Calendario</h4>
+                </div>
+                <div class="icon">
+                    <span class="icono icon-bell-ring"></span>
+                    <h4 class="descripcion">Notificaciones</h4>
+                </div>
+                <div class="icon">
+                    <span class="icono icon-view-dashboard"></span>
+                    <h4 class="descripcion">Dashboard</h4>
+                </div>
+            </div>
+            <div class="areaFile" id="areaFile" style="display: none">
+                
+                <h2>Importar Base de Datos</h2>
+                <h3>Arrastre y suelte aquí su archivo</h3>
+                <input type="button" value="Seleccionar Archivo" class="botonFile" id="botonFile">
+                <input type="file" name="bd" id="input-bd" style="display: none">
+                <div id="cancel-import">
+                <input type="button" value="Cancelar" id="boton-cancel-import">
+                </div>
+            </div>
+            <div class="areaFile" id="noti-import" style="display: none">
+                <h2 style="margin-top: 3rem">Importando Base de Datos. Por favor espere...</h2>
+                <svg width="500" height="18">
+                    <line x1="10" y1="10" x2="490" y2="10" class="progress-linea"/>
+                    <line x1="10" y1="10" x2="490" y2="10" class="progress-linea2" id="progress-linea2"/>
+                </svg>
+                <div class="porcentaje-import">
+                    <p id="texto-prog" class="percentage"></p>
+                </div>
+            </div>
+        </div>
         <div class="a-usuarios" id="a-usuariosid" style="display: none;"></div>
 
 <!--======================= FORM NUEVO INGRESO====================== -->
@@ -154,7 +203,7 @@
                 <header class="modal-header form-header">
                   <h4 class="header">Nuevo Ingreso</h4>
                 </header>
-                <!-- <section class="modal-content"> -->
+
         <form name="form-ingreso1" id="form-ingreso1" class="form-ingreso">
 			<div class="caja-select">
 				<label class="label2" for="fecha1">Fecha</label>  
@@ -162,7 +211,6 @@
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="hora1">Hora</label>  
-				<!-- <div class="separador"></div> -->
 				<input type="time" name="hora1" id="hora-ingreso1" class="input validar-nuevo-i">
 			</div>
 			<div class="caja-select">
@@ -220,10 +268,6 @@
 				</select>
 			</div>
 
-            <!-- <div class="caja-select">
-                <label class="label2" for="observaciones1">Obser...</label>
-                <input type="text" name="observaciones1" id="observaciones1" placeholder="Observaciones" autocomplete="off" class="input validar-nuevo-i">
-            </div> -->
             <div class="caja-subtotal">
 				<label for="txt-subtotal1" class="lsubt" id="subtotal1">Subtotal</label>
 				<input type="text" class="tsubt" id="txt-subtotal1" name="txt-subtotal1" disabled="true" readonly value="$0">
@@ -233,7 +277,6 @@
 
             </div>
         </form>
-<!-- </section> -->
         </div>
     </div>
 
@@ -294,10 +337,8 @@
                 <button onclick="cerrarModal()" class="close-modal" id="btnClose">
                 <span class="icon-close"></span>
                 </button>
-                <!-- <div class="espacio"></div> -->
             </header>
 
-        <!-- <section class="modal-content"> -->
         <form name="form-editar" id="form-editar" class="form-ingreso">
             <div class="caja-select">
                 <label class="label2" for="fecha2">Fecha</label>  
@@ -362,10 +403,6 @@
                     </select>
                 </div>
 
-                <!-- <div class="caja-select">
-                    <label class="label2" for="observaciones2">Obser...</label>
-                    <input type="text" name="observaciones2" id="observaciones2" placeholder="Observaciones" autocomplete="off" class="input validar-edit-i">
-                </div> -->
                 <div class="caja-subtotal">
                     <label for="txt-subtotal2" class="lsubt" id="subtotal2">Subtotal</label>
                     <input type="text" class="tsubt" id="txt-subtotal2" name="txt-subtotal2" disabled="true" readonly value="$0">
@@ -375,7 +412,6 @@
 
                 </div>
             </form>
-                <!-- </section> -->
             </div>
         </div>
            
@@ -497,7 +533,9 @@
 </div>
 </div>
 
-<div id="snackbar">Registro guardado correctamente</div>
+<div id="snackbarcont">
+    <div id="snackbar">Registro guardado correctamente</div>
+</div>
 
 </body>
 </html>
