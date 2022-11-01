@@ -456,7 +456,7 @@ async function importarJson() {//Proceso general de importacion del Backup
         if (cantidad >= 100) {
           clearInterval(tiempo);
         }
-      }, 40);
+      }, 45);
 
       setTimeout(() => {//Espera 5 segundos para recargar la pagina
         window.location.href = "./index.html";
@@ -464,6 +464,13 @@ async function importarJson() {//Proceso general de importacion del Backup
     }
   }
   
+}
+
+const ocultarDrag = () => {
+  var areaFile = document.getElementById("areaFile");
+  var rejilla = document.getElementById("rejilla");
+  rejilla.style.display = "grid";
+  areaFile.style.display = "none";
 }
 
 async function importIDB(tabla, arr) {//Insrtta todos los datos del Backup
