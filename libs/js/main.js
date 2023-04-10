@@ -44,7 +44,7 @@ window.addEventListener("load", iniciar);
 async function iniciar() {
   await dbSetup(); //Configura la base de datos
   await setTheme(); //Establece el tema guardado por el usuario
-  toggleElement("a-egreso"); //Solo muestra formulario Ingresos
+  toggleElement("a-ingreso"); //Solo muestra formulario Ingresos
   menuGraf = setArrYears(); //Carga años para select de Charts
 
   document.getElementById("form-ingreso1").onsubmit = (e) => e.preventDefault();
