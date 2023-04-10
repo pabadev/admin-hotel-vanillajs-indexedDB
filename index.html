@@ -42,9 +42,9 @@
                     <h3>Tabla de Ingresos</h3>
                 </a>
             </a>                    
-            <a href="#" id="a-gasto" onclick="toggleElement(id)">
+            <a href="#" id="a-egreso" onclick="toggleElement(id)">
                 <span class="icon-plus"></span>
-                <h3>Nuevo Gasto</h3>
+                <h3>Nuevo Egreso</h3>
             </a>
                 <a href="#" id="a-tabla-g" onclick="toggleElement(id)">
                     <span class="icon-cash-remove"></span>
@@ -142,12 +142,138 @@
     </div>
 
 <!--======================= FIN DE CHART ====================== -->
-        <div class="a-gasto" id="a-gastoid" style="display: none;"></div>
-        <div class="a-tabla-g" id="a-tabla-gid" style="display: none;"></div>
-        <div class="a-clientes"  id="a-clientesid" style="display: none;"></div>
-        <div class="a-proveedores" id="a-proveedoresid" style="display: none;"></div>
 
-        <div class="a-configuraciones" id="a-configuracionesid" style="display: none;">
+        <div class="caja-tabla a-tabla-g" id="a-tabla-gid" style="display: none">
+        
+            <div class="info-tabla-gral">
+                <div class="search" id="searchG">
+                    <input type="text" id="searchBox-g" class="searchBox" placeholder="Buscar en la tabla" autocomplete="off">
+                    <span id="buscar-g" class="icon-search" onclick="buscar(id)"></span>
+                    <span id="cerrar-buscar-g" class="icon-close" onclick="buscar(id)" style="display: none;"></span>
+                </div>
+                <div class="filtro-rangos info-tabla">
+                    <label class="">Mostrar:</label>
+                    <select name="lista-rango-tab-g" id="lista-rango-g" oninput="mostrarGastos()">
+                        <option value="1">Hoy</option>
+                        <option value="2">Este Mes</option>
+                        <option value="3" selected>Este Año</option>
+                        <option value="4">Todo</option>
+                        <option value="5">Rango</option>
+                    </select>
+                </div>
+                <div class="info-tabla">
+                    <label id="label-inicio-g" class="total-registros disabled">Desde:</label>
+                    <input name="fecha-inicio-g" type="date" id="fecha-inicio-g" class="total-registros2 disabled" disabled></input>
+                </div>
+                <div class="info-tabla">
+                    <label id="label-fin-g" class="total-registros disabled">Hasta:</label>
+                    <input type="date" id="fecha-fin-g" class="total-registros2 disabled" disabled></input>
+                </div>
+    
+            </div>
+            
+            <div class="borde-tabla" id="borde-tabla-g">
+            </div>
+    
+                <div class="info-tabla-gral bottom">
+                    <div class="info-tabla">
+                        <label for="" class="total-registros">Total Registros:</label>
+                        <label for="" id="total-registros2-g" class="total-registros2"></label>
+                    </div>
+                    <div class="info-tabla">
+                        <label for="" class="total-registros">Total Ingresos:</label>
+                        <label for="" id="total-ingresos2-g" class="total-registros2"></label>
+                    </div>
+        
+                </div>
+
+        </div>
+
+        <div class="a-clientes"  id="a-clientesid" style="display: none"></div>
+        <div class="a-proveedores" id="a-proveedoresid" style="display: none"></div>
+
+        <div class="a-egreso" id="a-egresoid" style="display: none">
+
+            <div class="recuadro modal-dialog2">
+                <header class="modal-header form-header">
+                  <h4 class="header">Nuevo Egreso</h4>
+                </header>
+            <form name="form-egreso1" id="form-egreso1" class="form-ingreso">
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="fecha-egreso1">Fecha</label>  
+                    <input type="date" name="fecha-egreso1" id="fecha-egreso1" class="input validar-nuevo-e">
+                </div>
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="lista-conceptosE1">Concepto</label>
+                    <select name="lista-conceptosE1" id="lista-conceptosE1" class="input validar-nuevo-e">
+                        <option value=""></option>
+                        <option value="1">Turno Recepción</option>
+                        <option value="2">Turno Aseo</option>
+                        <option value="3">Compra de insumos</option>
+                        <option value="4">Alimentación</option>
+                        <option value="5">Asesorías</option>
+                        <option value="6">Bonificaciones</option>
+                        <option value="7">Combustible</option>
+                        <option value="8">Mantenimiento</option>
+                        <option value="9">Servicio celular</option>
+                        <option value="10">Servicio Energía</option>
+                        <option value="11">Servicio Gas</option>
+                        <option value="12">Servicio Internet</option>
+                        <option value="13">Transporte</option>
+                        <option value="14">Publicidad</option>
+                        <option value="15">Salarios</option>
+                        <option value="16">Retiro de utilidades</option>
+                    </select>
+                </div>
+        
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="detalle-egreso1">Detalle</label>
+                    <input type="text" name="detalle-egreso1" id="detalle-egreso1" autocomplete="off" class="input validar-nuevo-e">
+                </div>
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="cantidad-egreso1">Cantidad</label>
+                    <input type="number" name="cantidad-egreso1" id="cantidad-egreso1" min="1" max="100" autocomplete="off" 
+                    oninput="subTotalEgreso(1)" class="input validar-nuevo-e" value="1">
+                </div>
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="precio-egreso1">Precio</label>
+                    <input type="number" name="precio-egreso1" id="precio-egreso1" autocomplete="off" oninput="subTotalEgreso(1)" class="input validar-nuevo-e">
+                </div>
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="tipo-pagoE1">Pago</label>
+                    <select name="tipo-pagoE1" id="tipo-pagoE1" class="input validar-nuevo-e">
+                        <option value=""></option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Factura">Factura</option>
+                        <option value="Crédito">Crédito</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
+                    </select>
+                </div>
+        
+                <div class="caja-select caja-selectE">
+                    <label class="label2" for="lista-encargadosE1">Turno</label>
+                    <select name="lista-encargadosE1" id="lista-encargadosE1" class="input validar-nuevo-e">
+                        <option value=""></option>
+                        <option value="Día">Día</option>
+                        <option value="Noche">Noche</option>
+                    </select>
+                </div>
+        
+                <div class="caja-subtotal caja-selectE">
+                    <label for="txt-subtotalE1" class="lsubt" id="subtotalE1">Subtotal</label>
+                    <input type="text" class="tsubt" id="txt-subtotalE1" name="txt-subtotalE1" disabled="true" readonly value="$0">
+                </div>
+                <div class="fondo-blanco caja-selectE">
+                    <button id="boton-egreso" class="btn-form" onclick="validarForm('.validar-nuevo-e', 1, '')">Guardar</button>
+        
+                </div>
+            </form>
+        </div>
+            
+        </div>
+
+        <div class="a-configuraciones" id="a-configuracionesid" style="display: none">
             <div class="rejilla" id="rejilla">
                 <div class="icon" onclick="crearJson()">
                     <span class="icono icon-database-arrow-down" id="exportar-bd"></span>
@@ -207,7 +333,7 @@
         <form name="form-ingreso1" id="form-ingreso1" class="form-ingreso">
 			<div class="caja-select">
 				<label class="label2" for="fecha1">Fecha</label>  
-				<input type="date" name="fecha1" id="fecha-ingreso1" class="input validar-nuevo-i">
+				<input type="date" name="fecha1" id="fecha-ingreso1" class="input validar-nuevo-i" max="``">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="hora1">Hora</label>  
@@ -228,7 +354,7 @@
 				<label class="label2" for="lista-servicios1">Servicio</label>
 				<select name="lista-servicios1" id="lista-servicios1" class="input validar-nuevo-i">
 					<option value=""></option>
-					<option value="Hospedaje">Hospedaje</option>
+					<option value="Hospedaje" selected>Hospedaje</option>
 					<option value="Restaurante">Restaurante</option>
 					<option value="Minibar">Minibar</option>
 					<option value="Lavandería">Lavandería</option>
@@ -241,7 +367,8 @@
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="cantidad-ingreso1">Cantidad</label>
-				<input type="number" name="cantidad-ingreso1" id="cantidad-ingreso1" min="1" max="100" autocomplete="off" oninput="subTotal(1)" class="input validar-nuevo-i">
+				<input type="number" name="cantidad-ingreso1" id="cantidad-ingreso1" min="1" max="100" autocomplete="off" 
+                oninput="subTotal(1)" class="input validar-nuevo-i" value="1">
 			</div>
 			<div class="caja-select">
 				<label class="label2" for="precio-ingreso1">Precio</label>
@@ -282,10 +409,10 @@
 
 <!--======================= TABLA INGRESOS====================== -->
 
-    <div class="caja-tabla a-tabla-i" id="a-tabla-iid" style="display: none;">
+    <div class="caja-tabla a-tabla-i" id="a-tabla-iid" style="display: none">
         <div class="info-tabla-gral">
             <div class="search" id="search">
-                <input type="text" id="searchBox" class="" placeholder="Buscar en la tabla" autocomplete="off">
+                <input type="text" id="searchBox" class="searchBox" placeholder="Buscar en la tabla" autocomplete="off">
                 <span id="buscar-i" class="icon-search" onclick="buscar(id)"></span>
                 <span id="cerrar-buscar-i" class="icon-close" onclick="buscar(id)" style="display: none;"></span>
             </div>
@@ -314,7 +441,6 @@
         <div class="borde-tabla" id="borde-tabla">
         </div>
 
-        <div class="caja-tabla a-tabla-i" id="a-tabla-iid">
             <div class="info-tabla-gral bottom">
                 <div class="info-tabla">
                     <label for="" class="total-registros">Total Registros:</label>
@@ -328,6 +454,19 @@
             </div>
 
     </div>
+
+    <!-- FIN DE TABLA INGRESOS -->
+
+    <!--======================= FORM NUEVO GASTO ====================== -->
+    <!-- <div class="recuadro" id="modal-form-e" style="display: grid"> -->
+        <!-- 
+
+    
+    </div> -->
+<!-- </div> -->
+
+    <!-- FIN DE NUEVO GASTO -->
+
     <!--======================= FORM EDITAR INGRESO====================== -->
 
     <div class="modal noVisible" id="modal1">
